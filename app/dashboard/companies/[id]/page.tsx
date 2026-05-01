@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 
 interface AnafData {
@@ -48,7 +48,6 @@ const FIELD_LABELS: Record<string, string> = {
 
 export default function CompanyPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,32 +57,55 @@ export default function CompanyPage() {
       .then((data) => { setCompany(data); setLoading(false); });
   }, [id]);
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Se încarcă...</div>;
-  if (!company) return <div className="text-center py-20 text-gray-500">Firma nu a fost găsită</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-2xl border border-surface-variant h-32 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!company) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-on-surface-variant">Firma nu a fost găsită</p>
+        <Link href="/dashboard" className="text-primary-container text-sm hover:underline mt-2 inline-block">
+          Înapoi la dashboard
+        </Link>
+      </div>
+    );
+  }
 
   const anaf = company.dateAnaf;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 text-sm">← Dashboard</Link>
-      </div>
+    <div className="space-y-5">
+      {/* Breadcrumb */}
+      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface text-sm transition-colors">
+        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+        Dashboard
+      </Link>
 
-      <div className="flex items-start justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{company.nume}</h1>
-          <p className="text-gray-500 text-sm mt-1">CUI: {company.cui}</p>
+          <h1 className="font-display font-bold text-on-surface" style={{ fontSize: 24, lineHeight: "32px" }}>{company.nume}</h1>
+          <p className="text-on-surface-variant text-sm mt-1">CUI: {company.cui}</p>
         </div>
         {anaf?.statusInactivi && (
-          <span className="bg-red-100 text-red-700 text-sm font-bold px-3 py-1 rounded-full">INACTIVĂ FISCAL</span>
+          <span className="bg-error-container text-on-error-container text-sm font-bold px-3 py-1 rounded-full flex-shrink-0">
+            INACTIVĂ FISCAL
+          </span>
         )}
       </div>
 
       {/* ANAF Data */}
       {anaf && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Date ANAF</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-surface-variant p-6">
+          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date ANAF</h2>
+          <div className="grid sm:grid-cols-2 gap-5">
             <DataRow label="Denumire" value={anaf.denumire} />
             <DataRow label="Adresă" value={anaf.adresa} />
             <DataRow label="Stare înregistrare" value={anaf.stare_inregistrare} />
@@ -93,17 +115,20 @@ export default function CompanyPage() {
             {anaf.dataInactivitate && <DataRow label="Data inactivitate" value={anaf.dataInactivitate} />}
             {anaf.dataStartEFactura && <DataRow label="Data start e-Factura" value={anaf.dataStartEFactura} />}
           </div>
-          <p className="text-xs text-gray-400 mt-4">
-            Ultima verificare: {company.lastChecked ? new Date(company.lastChecked).toLocaleString("ro-RO") : "Niciodată"}
+          <p className="text-xs text-outline mt-5 pt-4 border-t border-surface-container">
+            Ultima verificare:{" "}
+            {company.lastChecked
+              ? new Date(company.lastChecked).toLocaleString("ro-RO")
+              : "Niciodată"}
           </p>
         </div>
       )}
 
       {/* ONRC Data */}
       {company.dateOnrc && Object.keys(company.dateOnrc).length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Date ONRC</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-surface-variant p-6">
+          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date ONRC</h2>
+          <div className="grid sm:grid-cols-2 gap-5">
             {Object.entries(company.dateOnrc).map(([k, v]) => (
               <DataRow key={k} label={k} value={String(v)} />
             ))}
@@ -112,43 +137,55 @@ export default function CompanyPage() {
       )}
 
       {/* Alerts */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">
-          Istoricul alertelor ({company.alerts.length})
+      <div className="bg-white rounded-2xl border border-surface-variant p-6">
+        <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">
+          Istoricul alertelor{" "}
+          <span className="text-outline font-normal">({company.alerts.length})</span>
         </h2>
         {company.alerts.length === 0 ? (
-          <p className="text-gray-400 text-sm">Nicio alertă până acum. Firma este monitorizată și toate datele sunt ok.</p>
+          <div className="flex items-center gap-3 py-4">
+            <div className="w-10 h-10 bg-secondary-container/40 rounded-xl flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 20 }}>check_circle</span>
+            </div>
+            <p className="text-on-surface-variant text-sm">
+              Nicio alertă până acum. Firma este monitorizată și toate datele sunt ok.
+            </p>
+          </div>
         ) : (
           <div className="space-y-3">
             {company.alerts.map((alert) => (
               <div
                 key={alert.id}
                 className={`rounded-xl p-4 border ${
-                  alert.tipAlerta === "URGENT" ? "border-red-200 bg-red-50" : "border-gray-100"
+                  alert.tipAlerta === "URGENT"
+                    ? "border-error/30 bg-error-container/20"
+                    : "border-surface-variant"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
-                    className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                       alert.tipAlerta === "URGENT"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
+                        ? "bg-error-container text-on-error-container"
+                        : "bg-tertiary-container text-on-tertiary-container"
                     }`}
                   >
                     {alert.tipAlerta}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-outline">
                     {new Date(alert.createdAt).toLocaleString("ro-RO")}
                   </span>
                 </div>
                 {alert.detalii?.changes && (
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {alert.detalii.changes.map((c, i) => (
-                      <p key={i} className="text-sm text-gray-700">
-                        <span className="font-medium">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
-                        <span className="line-through text-red-500">{c.oldValue || "—"}</span>
+                      <p key={i} className="text-sm text-on-surface-variant">
+                        <span className="font-medium text-on-surface">
+                          {FIELD_LABELS[c.field] || c.field}:
+                        </span>{" "}
+                        <span className="line-through text-error">{c.oldValue || "—"}</span>
                         {" → "}
-                        <span className="text-green-600">{c.newValue || "—"}</span>
+                        <span className="text-primary-container font-medium">{c.newValue || "—"}</span>
                       </p>
                     ))}
                   </div>
@@ -162,11 +199,27 @@ export default function CompanyPage() {
   );
 }
 
-function DataRow({ label, value, colored }: { label: string; value?: string; colored?: boolean }) {
+function DataRow({
+  label,
+  value,
+  colored,
+}: {
+  label: string;
+  value?: string;
+  colored?: boolean;
+}) {
   return (
     <div>
-      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</p>
-      <p className={`text-sm mt-0.5 font-medium ${colored === true ? "text-green-600" : colored === false ? "text-red-600" : "text-gray-800"}`}>
+      <p className="text-xs text-outline font-semibold uppercase tracking-wide mb-1">{label}</p>
+      <p
+        className={`text-sm font-medium ${
+          colored === true
+            ? "text-primary-container"
+            : colored === false
+            ? "text-error"
+            : "text-on-surface"
+        }`}
+      >
         {value || "—"}
       </p>
     </div>

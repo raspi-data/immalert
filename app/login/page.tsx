@@ -16,13 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
+    const result = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
     if (result?.error) {
       setError("Email sau parolă incorectă");
@@ -33,41 +27,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-blue-700">ImmAlert</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-4">Bun venit înapoi</h1>
-          <p className="text-gray-500 mt-1">Autentifică-te în contul tău</p>
+          <Link href="/" className="inline-block font-display font-bold text-2xl text-primary-container">
+            ImmAlert
+          </Link>
+          <h1 className="font-display font-bold text-on-surface mt-4" style={{ fontSize: 24, lineHeight: "32px" }}>
+            Bun venit înapoi
+          </h1>
+          <p className="text-on-surface-variant mt-1 text-sm">Autentifică-te în contul tău</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-surface-variant p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
+                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="email@exemplu.ro"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Parolă</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Parolă</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
+                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="••••••••"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
+              <div className="bg-error-container text-on-error-container text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>error</span>
                 {error}
               </div>
             )}
@@ -75,19 +76,26 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50"
+              className="w-full bg-primary-container text-white font-display font-semibold py-3 rounded-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 text-sm mt-2"
             >
               {loading ? "Se autentifică..." : "Autentifică-te"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-on-surface-variant mt-6">
             Nu ai cont?{" "}
-            <Link href="/register" className="text-blue-700 font-medium hover:underline">
+            <Link href="/register" className="text-primary-container font-medium hover:underline">
               Creează unul gratuit
             </Link>
           </p>
         </div>
+
+        <p className="text-center text-sm text-outline mt-6">
+          <Link href="/" className="hover:text-on-surface-variant transition-colors flex items-center justify-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+            Înapoi la pagina principală
+          </Link>
+        </p>
       </div>
     </div>
   );

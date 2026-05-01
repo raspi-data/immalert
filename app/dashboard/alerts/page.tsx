@@ -43,77 +43,91 @@ export default function AlertsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Alerte</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {unread > 0 ? `${unread} alerte necitite` : "Toate alertele citite"}
+        <h1 className="font-display font-bold text-on-surface" style={{ fontSize: 24, lineHeight: "32px" }}>Alerte</h1>
+        <p className="text-on-surface-variant text-sm mt-1">
+          {unread > 0 ? (
+            <span className="inline-flex items-center gap-1 bg-error-container text-on-error-container text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              {unread} alerte necitite
+            </span>
+          ) : (
+            "Toate alertele citite"
+          )}
         </p>
       </div>
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-xl border border-gray-100 h-24 animate-pulse" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-surface-variant h-24 animate-pulse" />
+          ))}
         </div>
       ) : alerts.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <p className="text-4xl mb-3">✅</p>
-          <p className="text-gray-900 font-semibold">Nicio alertă</p>
-          <p className="text-gray-500 text-sm mt-1">Totul este în regulă cu firmele monitorizate</p>
+        <div className="bg-white rounded-2xl border border-surface-variant p-12 text-center">
+          <div className="w-14 h-14 bg-secondary-container/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 28 }}>check_circle</span>
+          </div>
+          <p className="font-display font-semibold text-on-surface">Nicio alertă</p>
+          <p className="text-on-surface-variant text-sm mt-1">Totul este în regulă cu firmele monitorizate</p>
         </div>
       ) : (
         <div className="space-y-3">
           {alerts.map((alert) => (
             <div
               key={alert.id}
-              className={`bg-white rounded-xl border p-5 transition-colors ${
-                !alert.citit ? "border-blue-200" : "border-gray-100"
-              } ${alert.tipAlerta === "URGENT" ? "border-red-200 bg-red-50" : ""}`}
+              className={`bg-white rounded-xl border p-5 transition-all ${
+                alert.tipAlerta === "URGENT"
+                  ? "border-error/30 bg-error-container/20"
+                  : !alert.citit
+                  ? "border-primary-container/30"
+                  : "border-surface-variant"
+              }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                         alert.tipAlerta === "URGENT"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
+                          ? "bg-error-container text-on-error-container"
+                          : "bg-tertiary-container text-on-tertiary-container"
                       }`}
                     >
                       {alert.tipAlerta}
                     </span>
                     {!alert.citit && (
-                      <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <span className="w-2 h-2 bg-primary-container rounded-full" />
                     )}
                     <Link
                       href={`/dashboard/companies/${alert.company.id}`}
-                      className="font-semibold text-gray-900 hover:text-blue-700 text-sm"
+                      className="font-display font-semibold text-on-surface hover:text-primary-container text-sm transition-colors"
                     >
                       {alert.company.nume}
                     </Link>
-                    <span className="text-gray-400 text-xs">CUI: {alert.company.cui}</span>
+                    <span className="text-outline text-xs">CUI: {alert.company.cui}</span>
                   </div>
 
                   {alert.detalii?.changes && (
-                    <div className="mt-2 space-y-1">
+                    <div className="space-y-1.5 mt-2">
                       {alert.detalii.changes.map((c, i) => (
-                        <p key={i} className="text-sm text-gray-600">
-                          <span className="font-medium">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
-                          <span className="line-through text-red-500">{c.oldValue || "—"}</span>
+                        <p key={i} className="text-sm text-on-surface-variant">
+                          <span className="font-medium text-on-surface">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
+                          <span className="line-through text-error">{c.oldValue || "—"}</span>
                           {" → "}
-                          <span className="text-green-600">{c.newValue || "—"}</span>
+                          <span className="text-primary-container font-medium">{c.newValue || "—"}</span>
                         </p>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-xs text-gray-400">
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <span className="text-xs text-outline">
                     {new Date(alert.createdAt).toLocaleDateString("ro-RO")}
                   </span>
                   {!alert.citit && (
                     <button
                       onClick={() => markRead(alert.id)}
-                      className="text-xs text-blue-600 hover:text-blue-800"
+                      className="text-xs text-primary-container hover:opacity-75 transition-opacity font-medium"
                     >
                       Marchează citit
                     </button>
