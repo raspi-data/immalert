@@ -19,8 +19,8 @@ const FIELD_LABELS: Record<string, string> = {
   scpTVA: "TVA",
   statusInactivi: "Status inactiv",
   statusEFactura: "e-Factura",
-  adresa: "Adresă",
-  stare_inregistrare: "Stare înregistrare",
+  adresa: "Adresa",
+  stare_inregistrare: "Stare inregistrare",
 };
 
 export default function AlertsPage() {
@@ -43,21 +43,33 @@ export default function AlertsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Alerte</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {unread > 0 ? `${unread} alerte necitite` : "Toate alertele citite"}
+        <h1 className="text-2xl font-bold text-[--color-foreground]">Alerte</h1>
+        <p className="text-[--color-muted] text-sm mt-1">
+          {unread > 0 ? (
+            <span className="inline-flex items-center gap-1 bg-[--color-danger-bg] text-[--color-danger] text-xs font-semibold px-2 py-0.5 rounded-full">
+              {unread} alerte necitite
+            </span>
+          ) : (
+            "Toate alertele citite"
+          )}
         </p>
       </div>
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-xl border border-gray-100 h-24 animate-pulse" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-[--color-border] h-24 animate-pulse" />
+          ))}
         </div>
       ) : alerts.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <p className="text-4xl mb-3">✅</p>
-          <p className="text-gray-900 font-semibold">Nicio alertă</p>
-          <p className="text-gray-500 text-sm mt-1">Totul este în regulă cu firmele monitorizate</p>
+        <div className="bg-white rounded-2xl border border-[--color-border] p-12 text-center">
+          <div className="w-12 h-12 bg-[--color-success-bg] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--color-success)" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-[--color-foreground] font-semibold">Nicio alerta</p>
+          <p className="text-[--color-muted] text-sm mt-1">Totul este in regula cu firmele monitorizate</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -65,57 +77,61 @@ export default function AlertsPage() {
             <div
               key={alert.id}
               className={`bg-white rounded-xl border p-5 transition-colors ${
-                !alert.citit ? "border-blue-200" : "border-gray-100"
-              } ${alert.tipAlerta === "URGENT" ? "border-red-200 bg-red-50" : ""}`}
+                alert.tipAlerta === "URGENT"
+                  ? "border-[--color-danger]/30 bg-[--color-danger-bg]/40"
+                  : !alert.citit
+                  ? "border-[--color-brand]/30"
+                  : "border-[--color-border]"
+              }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                         alert.tipAlerta === "URGENT"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
+                          ? "bg-[--color-danger-bg] text-[--color-danger]"
+                          : "bg-[--color-warning-bg] text-[--color-warning]"
                       }`}
                     >
                       {alert.tipAlerta}
                     </span>
                     {!alert.citit && (
-                      <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <span className="w-2 h-2 bg-[--color-brand] rounded-full" />
                     )}
                     <Link
                       href={`/dashboard/companies/${alert.company.id}`}
-                      className="font-semibold text-gray-900 hover:text-blue-700 text-sm"
+                      className="font-semibold text-[--color-foreground] hover:text-[--color-brand] text-sm transition-colors"
                     >
                       {alert.company.nume}
                     </Link>
-                    <span className="text-gray-400 text-xs">CUI: {alert.company.cui}</span>
+                    <span className="text-[--color-muted-light] text-xs">CUI: {alert.company.cui}</span>
                   </div>
 
                   {alert.detalii?.changes && (
-                    <div className="mt-2 space-y-1">
+                    <div className="space-y-1.5 mt-2">
                       {alert.detalii.changes.map((c, i) => (
-                        <p key={i} className="text-sm text-gray-600">
-                          <span className="font-medium">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
-                          <span className="line-through text-red-500">{c.oldValue || "—"}</span>
+                        <p key={i} className="text-sm text-[--color-muted]">
+                          <span className="font-medium text-[--color-foreground]">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
+                          <span className="line-through text-[--color-danger]">{c.oldValue || "—"}</span>
                           {" → "}
-                          <span className="text-green-600">{c.newValue || "—"}</span>
+                          <span className="text-[--color-success]">{c.newValue || "—"}</span>
                         </p>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-xs text-gray-400">
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <span className="text-xs text-[--color-muted-light]">
                     {new Date(alert.createdAt).toLocaleDateString("ro-RO")}
                   </span>
                   {!alert.citit && (
                     <button
                       onClick={() => markRead(alert.id)}
-                      className="text-xs text-blue-600 hover:text-blue-800"
+                      className="text-xs text-[--color-brand] hover:text-[--color-brand-dark] transition-colors"
                     >
-                      Marchează citit
+                      Marcheaza citit
                     </button>
                   )}
                 </div>

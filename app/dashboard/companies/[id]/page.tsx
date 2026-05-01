@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 
 interface AnafData {
@@ -42,13 +42,12 @@ const FIELD_LABELS: Record<string, string> = {
   scpTVA: "TVA",
   statusInactivi: "Status inactiv",
   statusEFactura: "e-Factura",
-  adresa: "Adresă",
-  stare_inregistrare: "Stare înregistrare",
+  adresa: "Adresa",
+  stare_inregistrare: "Stare inregistrare",
 };
 
 export default function CompanyPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,52 +57,80 @@ export default function CompanyPage() {
       .then((data) => { setCompany(data); setLoading(false); });
   }, [id]);
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Se încarcă...</div>;
-  if (!company) return <div className="text-center py-20 text-gray-500">Firma nu a fost găsită</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-2xl border border-[--color-border] h-32 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!company) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-[--color-muted]">Firma nu a fost gasita</p>
+        <Link href="/dashboard" className="text-[--color-brand] text-sm hover:underline mt-2 inline-block">
+          &larr; Inapoi la dashboard
+        </Link>
+      </div>
+    );
+  }
 
   const anaf = company.dateAnaf;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 text-sm">← Dashboard</Link>
-      </div>
+    <div className="space-y-5">
+      {/* Breadcrumb */}
+      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-[--color-muted] hover:text-[--color-foreground] text-sm transition-colors">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Dashboard
+      </Link>
 
-      <div className="flex items-start justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{company.nume}</h1>
-          <p className="text-gray-500 text-sm mt-1">CUI: {company.cui}</p>
+          <h1 className="text-2xl font-bold text-[--color-foreground]">{company.nume}</h1>
+          <p className="text-[--color-muted] text-sm mt-1">CUI: {company.cui}</p>
         </div>
         {anaf?.statusInactivi && (
-          <span className="bg-red-100 text-red-700 text-sm font-bold px-3 py-1 rounded-full">INACTIVĂ FISCAL</span>
+          <span className="bg-[--color-danger-bg] text-[--color-danger] text-sm font-bold px-3 py-1 rounded-full flex-shrink-0">
+            INACTIVA FISCAL
+          </span>
         )}
       </div>
 
       {/* ANAF Data */}
       {anaf && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Date ANAF</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-[--color-border] p-6">
+          <h2 className="font-semibold text-[--color-foreground] mb-5 text-sm">Date ANAF</h2>
+          <div className="grid sm:grid-cols-2 gap-5">
             <DataRow label="Denumire" value={anaf.denumire} />
-            <DataRow label="Adresă" value={anaf.adresa} />
-            <DataRow label="Stare înregistrare" value={anaf.stare_inregistrare} />
+            <DataRow label="Adresa" value={anaf.adresa} />
+            <DataRow label="Stare inregistrare" value={anaf.stare_inregistrare} />
             <DataRow label="TVA activ" value={anaf.scpTVA ? "Da" : "Nu"} colored={anaf.scpTVA} />
             <DataRow label="Status inactiv" value={anaf.statusInactivi ? "Da" : "Nu"} colored={!anaf.statusInactivi} />
-            <DataRow label="e-Factura" value={anaf.statusEFactura ? "Activă" : "Inactivă"} />
+            <DataRow label="e-Factura" value={anaf.statusEFactura ? "Activa" : "Inactiva"} />
             {anaf.dataInactivitate && <DataRow label="Data inactivitate" value={anaf.dataInactivitate} />}
             {anaf.dataStartEFactura && <DataRow label="Data start e-Factura" value={anaf.dataStartEFactura} />}
           </div>
-          <p className="text-xs text-gray-400 mt-4">
-            Ultima verificare: {company.lastChecked ? new Date(company.lastChecked).toLocaleString("ro-RO") : "Niciodată"}
+          <p className="text-xs text-[--color-muted-light] mt-5 pt-4 border-t border-[--color-border-light]">
+            Ultima verificare:{" "}
+            {company.lastChecked
+              ? new Date(company.lastChecked).toLocaleString("ro-RO")
+              : "Niciodata"}
           </p>
         </div>
       )}
 
       {/* ONRC Data */}
       {company.dateOnrc && Object.keys(company.dateOnrc).length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Date ONRC</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-[--color-border] p-6">
+          <h2 className="font-semibold text-[--color-foreground] mb-5 text-sm">Date ONRC</h2>
+          <div className="grid sm:grid-cols-2 gap-5">
             {Object.entries(company.dateOnrc).map(([k, v]) => (
               <DataRow key={k} label={k} value={String(v)} />
             ))}
@@ -112,43 +139,57 @@ export default function CompanyPage() {
       )}
 
       {/* Alerts */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">
-          Istoricul alertelor ({company.alerts.length})
+      <div className="bg-white rounded-2xl border border-[--color-border] p-6">
+        <h2 className="font-semibold text-[--color-foreground] mb-5 text-sm">
+          Istoricul alertelor{" "}
+          <span className="text-[--color-muted-light] font-normal">({company.alerts.length})</span>
         </h2>
         {company.alerts.length === 0 ? (
-          <p className="text-gray-400 text-sm">Nicio alertă până acum. Firma este monitorizată și toate datele sunt ok.</p>
+          <div className="flex items-center gap-3 py-4">
+            <div className="w-8 h-8 bg-[--color-success-bg] rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--color-success)" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <p className="text-[--color-muted] text-sm">
+              Nicio alerta pana acum. Firma este monitorizata si toate datele sunt ok.
+            </p>
+          </div>
         ) : (
           <div className="space-y-3">
             {company.alerts.map((alert) => (
               <div
                 key={alert.id}
                 className={`rounded-xl p-4 border ${
-                  alert.tipAlerta === "URGENT" ? "border-red-200 bg-red-50" : "border-gray-100"
+                  alert.tipAlerta === "URGENT"
+                    ? "border-[--color-danger]/30 bg-[--color-danger-bg]/40"
+                    : "border-[--color-border]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       alert.tipAlerta === "URGENT"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
+                        ? "bg-[--color-danger-bg] text-[--color-danger]"
+                        : "bg-[--color-warning-bg] text-[--color-warning]"
                     }`}
                   >
                     {alert.tipAlerta}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-[--color-muted-light]">
                     {new Date(alert.createdAt).toLocaleString("ro-RO")}
                   </span>
                 </div>
                 {alert.detalii?.changes && (
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {alert.detalii.changes.map((c, i) => (
-                      <p key={i} className="text-sm text-gray-700">
-                        <span className="font-medium">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
-                        <span className="line-through text-red-500">{c.oldValue || "—"}</span>
+                      <p key={i} className="text-sm text-[--color-muted]">
+                        <span className="font-medium text-[--color-foreground]">
+                          {FIELD_LABELS[c.field] || c.field}:
+                        </span>{" "}
+                        <span className="line-through text-[--color-danger]">{c.oldValue || "—"}</span>
                         {" → "}
-                        <span className="text-green-600">{c.newValue || "—"}</span>
+                        <span className="text-[--color-success]">{c.newValue || "—"}</span>
                       </p>
                     ))}
                   </div>
@@ -162,11 +203,27 @@ export default function CompanyPage() {
   );
 }
 
-function DataRow({ label, value, colored }: { label: string; value?: string; colored?: boolean }) {
+function DataRow({
+  label,
+  value,
+  colored,
+}: {
+  label: string;
+  value?: string;
+  colored?: boolean;
+}) {
   return (
     <div>
-      <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</p>
-      <p className={`text-sm mt-0.5 font-medium ${colored === true ? "text-green-600" : colored === false ? "text-red-600" : "text-gray-800"}`}>
+      <p className="text-xs text-[--color-muted-light] font-medium uppercase tracking-wide mb-1">{label}</p>
+      <p
+        className={`text-sm font-medium ${
+          colored === true
+            ? "text-[--color-success]"
+            : colored === false
+            ? "text-[--color-danger]"
+            : "text-[--color-foreground]"
+        }`}
+      >
         {value || "—"}
       </p>
     </div>

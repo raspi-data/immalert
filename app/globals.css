@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+@theme inline {
+  --font-sans: 'Inter', 'Inter Fallback';
+
+  /* Brand colors - teal/emerald like MonitorRO */
+  --color-brand: #0ea5a0;
+  --color-brand-dark: #0c8a86;
+  --color-brand-light: #e6f7f7;
+  --color-brand-mid: #1a9e9a;
+
+  /* Neutrals */
+  --color-background: #ffffff;
+  --color-surface: #f8fafb;
+  --color-border: #e8edf2;
+  --color-border-light: #f0f4f8;
+
+  /* Text */
+  --color-foreground: #0f1923;
+  --color-muted: #637080;
+  --color-muted-light: #8fa0b0;
+
+  /* Semantic */
+  --color-danger: #ef4444;
+  --color-danger-bg: #fef2f2;
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+}

@@ -17,7 +17,7 @@ export function DashboardNav({ user }: { user: NavUser }) {
   const links = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/alerts", label: "Alerte" },
-    { href: "/dashboard/settings", label: "Setări" },
+    { href: "/dashboard/settings", label: "Setari" },
     ...(user.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
@@ -30,27 +30,27 @@ export function DashboardNav({ user }: { user: NavUser }) {
 
   const statusColor =
     user.subscriptionStatus === "active"
-      ? "bg-green-100 text-green-700"
+      ? "bg-[--color-success-bg] text-[--color-success]"
       : user.subscriptionStatus === "trial"
-      ? "bg-blue-100 text-blue-700"
-      : "bg-red-100 text-red-700";
+      ? "bg-[--color-brand-light] text-[--color-brand]"
+      : "bg-[--color-danger-bg] text-[--color-danger]";
 
   return (
-    <header className="bg-white border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="text-lg font-bold text-blue-700">
+    <header className="bg-white border-b border-[--color-border] sticky top-0 z-40">
+      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-7">
+          <Link href="/dashboard" className="text-lg font-bold text-[--color-brand]">
             ImmAlert
           </Link>
-          <nav className="hidden sm:flex items-center gap-1">
+          <nav className="hidden sm:flex items-center gap-0.5">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
                   pathname === link.href
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-[--color-brand-light] text-[--color-brand]"
+                    : "text-[--color-muted] hover:text-[--color-foreground] hover:bg-[--color-surface]"
                 }`}
               >
                 {link.label}
@@ -59,15 +59,15 @@ export function DashboardNav({ user }: { user: NavUser }) {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColor}`}>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor}`}>
             {statusLabel}
           </span>
-          <span className="text-sm text-gray-500 hidden sm:block">{user.email}</span>
+          <span className="text-sm text-[--color-muted] hidden sm:block">{user.email}</span>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="text-sm text-gray-500 hover:text-gray-900"
+            className="text-sm text-[--color-muted] hover:text-[--color-foreground] transition-colors"
           >
-            Ieșire
+            Iesire
           </button>
         </div>
       </div>

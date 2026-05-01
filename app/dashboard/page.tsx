@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
     if (!res.ok) {
       const data = await res.json();
-      setAddError(data.error || "Eroare la adăugare");
+      setAddError(data.error || "Eroare la adaugare");
     } else {
       setCui("");
       setPreview(null);
@@ -69,7 +69,7 @@ export default function DashboardPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Ești sigur că vrei să ștergi această firmă?")) return;
+    if (!confirm("Esti sigur ca vrei sa stergi aceasta firma?")) return;
     await fetch(`/api/companies/${id}`, { method: "DELETE" });
     await loadCompanies();
   }
@@ -77,21 +77,25 @@ export default function DashboardPage() {
   const totalAlerts = companies.reduce((acc, c) => acc + c.alerts.length, 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            {companies.length} {companies.length === 1 ? "firmă monitorizată" : "firme monitorizate"}
-            {totalAlerts > 0 && ` • ${totalAlerts} alerte necitite`}
+          <h1 className="text-2xl font-bold text-[--color-foreground]">Dashboard</h1>
+          <p className="text-[--color-muted] text-sm mt-1">
+            {companies.length} {companies.length === 1 ? "firma monitorizata" : "firme monitorizate"}
+            {totalAlerts > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 bg-[--color-danger-bg] text-[--color-danger] text-xs font-semibold px-2 py-0.5 rounded-full">
+                {totalAlerts} alerte necitite
+              </span>
+            )}
           </p>
         </div>
       </div>
 
       {/* Add company form */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">Adaugă firmă după CUI</h2>
+      <div className="bg-white rounded-2xl border border-[--color-border] p-6">
+        <h2 className="font-semibold text-[--color-foreground] mb-4 text-sm">Adauga firma dupa CUI</h2>
         <form onSubmit={handleAdd} className="flex gap-3">
           <div className="flex-1">
             <input
@@ -100,42 +104,46 @@ export default function DashboardPage() {
               onChange={(e) => { setCui(e.target.value); setPreview(null); }}
               onBlur={handleCuiBlur}
               placeholder="Ex: 1234567"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
               pattern="\d+"
             />
-            {previewing && <p className="text-xs text-gray-400 mt-1">Se verifică CUI-ul...</p>}
+            {previewing && <p className="text-xs text-[--color-muted] mt-1.5">Se verifica CUI-ul...</p>}
             {preview && (
-              <div className="mt-2 p-3 bg-blue-50 rounded-lg text-sm">
-                <p className="font-semibold text-blue-900">{preview.denumire}</p>
-                <p className="text-blue-700 text-xs mt-0.5">{preview.adresa}</p>
+              <div className="mt-2 p-3 bg-[--color-brand-light] rounded-lg border border-[--color-brand]/20">
+                <p className="font-semibold text-[--color-foreground] text-sm">{preview.denumire}</p>
+                <p className="text-[--color-brand] text-xs mt-0.5">{preview.adresa}</p>
               </div>
             )}
-            {addError && <p className="text-xs text-red-600 mt-1">{addError}</p>}
+            {addError && <p className="text-xs text-[--color-danger] mt-1.5">{addError}</p>}
           </div>
           <button
             type="submit"
             disabled={adding || !cui}
-            className="bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50 whitespace-nowrap"
+            className="bg-[--color-brand] text-white font-medium px-5 py-2.5 rounded-lg hover:bg-[--color-brand-dark] transition-colors disabled:opacity-50 whitespace-nowrap text-sm"
           >
-            {adding ? "Se adaugă..." : "Adaugă firmă"}
+            {adding ? "Se adauga..." : "Adauga firma"}
           </button>
         </form>
       </div>
 
       {/* Companies list */}
       <div>
-        <h2 className="font-semibold text-gray-900 mb-4">Firme monitorizate</h2>
+        <h2 className="font-semibold text-[--color-foreground] mb-4 text-sm">Firme monitorizate</h2>
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 h-20 animate-pulse" />
+              <div key={i} className="bg-white rounded-xl border border-[--color-border] h-20 animate-pulse" />
             ))}
           </div>
         ) : companies.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <p className="text-4xl mb-3">🏢</p>
-            <p className="text-gray-900 font-semibold">Nicio firmă monitorizată încă</p>
-            <p className="text-gray-500 text-sm mt-1">Adaugă primul CUI mai sus pentru a începe monitorizarea</p>
+          <div className="bg-white rounded-2xl border border-[--color-border] p-12 text-center">
+            <div className="w-12 h-12 bg-[--color-brand-light] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--color-brand)" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+              </svg>
+            </div>
+            <p className="text-[--color-foreground] font-semibold">Nicio firma monitorizata inca</p>
+            <p className="text-[--color-muted] text-sm mt-1">Adauga primul CUI mai sus pentru a incepe monitorizarea</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -145,45 +153,58 @@ export default function DashboardPage() {
               return (
                 <div
                   key={company.id}
-                  className={`bg-white rounded-xl border ${hasAlerts ? "border-red-200" : "border-gray-100"} p-5 flex items-center justify-between hover:border-blue-200 transition-colors`}
+                  className={`bg-white rounded-xl border p-5 flex items-center justify-between hover:border-[--color-brand]/40 transition-colors ${
+                    isInactive
+                      ? "border-[--color-danger]/30"
+                      : hasAlerts
+                      ? "border-[--color-warning]/40"
+                      : "border-[--color-border]"
+                  }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full ${isInactive ? "bg-red-500" : hasAlerts ? "bg-yellow-400" : "bg-green-400"}`} />
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                        isInactive ? "bg-[--color-danger]" : hasAlerts ? "bg-[--color-warning]" : "bg-[--color-success]"
+                      }`}
+                    />
                     <div>
-                      <div className="flex items-center gap-2">
-                        <Link href={`/dashboard/companies/${company.id}`} className="font-semibold text-gray-900 hover:text-blue-700">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                          href={`/dashboard/companies/${company.id}`}
+                          className="font-semibold text-[--color-foreground] hover:text-[--color-brand] text-sm transition-colors"
+                        >
                           {company.nume}
                         </Link>
                         {hasAlerts && (
-                          <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                            {company.alerts.length} alertă
+                          <span className="bg-[--color-danger-bg] text-[--color-danger] text-xs font-bold px-2 py-0.5 rounded-full">
+                            {company.alerts.length} alerta
                           </span>
                         )}
                         {isInactive && (
-                          <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                            INACTIVĂ
+                          <span className="bg-[--color-danger-bg] text-[--color-danger] text-xs font-bold px-2 py-0.5 rounded-full">
+                            INACTIVA
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-400 text-xs mt-0.5">
+                      <p className="text-[--color-muted] text-xs mt-0.5">
                         CUI: {company.cui}
                         {company.dateAnaf?.scpTVA && " • TVA activ"}
                         {company.dateAnaf?.statusEFactura && " • e-Factura"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <Link
                       href={`/dashboard/companies/${company.id}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-sm text-[--color-brand] hover:text-[--color-brand-dark] font-medium transition-colors"
                     >
-                      Detalii →
+                      Detalii &rarr;
                     </Link>
                     <button
                       onClick={() => handleDelete(company.id)}
-                      className="text-sm text-gray-400 hover:text-red-600"
+                      className="text-sm text-[--color-muted-light] hover:text-[--color-danger] transition-colors"
                     >
-                      Șterge
+                      Sterge
                     </button>
                   </div>
                 </div>

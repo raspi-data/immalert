@@ -25,7 +25,7 @@ export default function LoginPage() {
 
     setLoading(false);
     if (result?.error) {
-      setError("Email sau parolă incorectă");
+      setError("Email sau parola incorecta");
     } else {
       router.push("/dashboard");
       router.refresh();
@@ -33,41 +33,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[--color-surface] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-blue-700">ImmAlert</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-4">Bun venit înapoi</h1>
-          <p className="text-gray-500 mt-1">Autentifică-te în contul tău</p>
+          <Link href="/" className="inline-block text-2xl font-bold text-[--color-brand]">
+            ImmAlert
+          </Link>
+          <h1 className="text-2xl font-bold text-[--color-foreground] mt-4">Bun venit inapoi</h1>
+          <p className="text-[--color-muted] mt-1 text-sm">Autentifica-te in contul tau</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-[--color-border] p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
                 placeholder="email@exemplu.ro"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Parolă</label>
+              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Parola</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
                 placeholder="••••••••"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
+              <div className="bg-[--color-danger-bg] border border-[--color-danger]/20 text-[--color-danger] text-sm px-3 py-2.5 rounded-lg">
                 {error}
               </div>
             )}
@@ -75,19 +78,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-800 transition-colors disabled:opacity-50"
+              className="w-full bg-[--color-brand] text-white font-semibold py-2.5 rounded-lg hover:bg-[--color-brand-dark] transition-colors disabled:opacity-50 text-sm mt-2"
             >
-              {loading ? "Se autentifică..." : "Autentifică-te"}
+              {loading ? "Se autentifica..." : "Autentifica-te"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-[--color-muted] mt-6">
             Nu ai cont?{" "}
-            <Link href="/register" className="text-blue-700 font-medium hover:underline">
-              Creează unul gratuit
+            <Link href="/register" className="text-[--color-brand] font-medium hover:underline">
+              Creeaza unul gratuit
             </Link>
           </p>
         </div>
+
+        <p className="text-center text-xs text-[--color-muted-light] mt-6">
+          <Link href="/" className="hover:text-[--color-muted] transition-colors">
+            &larr; Inapoi la pagina principala
+          </Link>
+        </p>
       </div>
     </div>
   );
