@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error || "Eroare la inregistrare");
+      setError(data.error || "Eroare la înregistrare");
       setLoading(false);
       return;
     }
@@ -36,65 +36,60 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[--color-surface] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-2xl font-bold text-[--color-brand]">
+          <Link href="/" className="inline-block font-display font-bold text-2xl text-primary-container">
             ImmAlert
           </Link>
-          <h1 className="text-2xl font-bold text-[--color-foreground] mt-4">14 zile gratuit</h1>
-          <p className="text-[--color-muted] mt-1 text-sm">Fara card &bull; Anulezi oricand</p>
+          <h1 className="font-display font-bold text-on-surface mt-4" style={{ fontSize: 24, lineHeight: "32px" }}>
+            14 zile gratuit
+          </h1>
+          <p className="text-on-surface-variant mt-1 text-sm">Fără card &bull; Anulezi oricând</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-[--color-border] p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-surface-variant p-8">
           {/* Trust badges */}
-          <div className="flex items-center justify-center gap-4 mb-6 pb-5 border-b border-[--color-border-light]">
-            {[
-              { label: "Fara card" },
-              { label: "14 zile gratuit" },
-              { label: "Anulezi oricand" },
-            ].map((badge) => (
-              <div key={badge.label} className="flex items-center gap-1.5 text-xs text-[--color-muted]">
-                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="var(--color-brand)" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                {badge.label}
+          <div className="flex items-center justify-center gap-4 mb-6 pb-5 border-b border-surface-container">
+            {["Fără card", "14 zile gratuit", "Anulezi oricând"].map((badge) => (
+              <div key={badge} className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 14 }}>check_circle</span>
+                {badge}
               </div>
             ))}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">
-                Nume <span className="text-[--color-muted-light] font-normal">(optional)</span>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">
+                Nume <span className="text-outline font-normal">(opțional)</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
                 placeholder="Ion Popescu"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
                 placeholder="email@exemplu.ro"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Parola</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Parolă</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
                 placeholder="Minim 6 caractere"
                 required
                 minLength={6}
@@ -102,7 +97,8 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="bg-[--color-danger-bg] border border-[--color-danger]/20 text-[--color-danger] text-sm px-3 py-2.5 rounded-lg">
+              <div className="bg-error-container text-on-error-container text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>error</span>
                 {error}
               </div>
             )}
@@ -110,36 +106,35 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[--color-brand] text-white font-semibold py-2.5 rounded-lg hover:bg-[--color-brand-dark] transition-colors disabled:opacity-50 text-sm mt-2 flex items-center justify-center gap-2"
+              className="w-full bg-primary-container text-white font-display font-semibold py-3 rounded-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 text-sm mt-2 flex items-center justify-center gap-2"
             >
               {loading ? (
-                "Se creeaza contul..."
+                "Se creează contul..."
               ) : (
                 <>
-                  Creeaza cont gratuit
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
+                  Creează cont gratuit
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-xs text-[--color-muted-light] mt-4">
-            Prin inregistrare esti de acord cu termenii si conditiile serviciului.
+          <p className="text-center text-xs text-outline mt-4">
+            Prin înregistrare ești de acord cu termenii și condițiile serviciului.
           </p>
 
-          <p className="text-center text-sm text-[--color-muted] mt-4">
+          <p className="text-center text-sm text-on-surface-variant mt-4">
             Ai deja cont?{" "}
-            <Link href="/login" className="text-[--color-brand] font-medium hover:underline">
-              Autentifica-te
+            <Link href="/login" className="text-primary-container font-medium hover:underline">
+              Autentifică-te
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-[--color-muted-light] mt-6">
-          <Link href="/" className="hover:text-[--color-muted] transition-colors">
-            &larr; Inapoi la pagina principala
+        <p className="text-center text-sm text-outline mt-6">
+          <Link href="/" className="hover:text-on-surface-variant transition-colors flex items-center justify-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+            Înapoi la pagina principală
           </Link>
         </p>
       </div>

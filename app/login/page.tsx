@@ -16,16 +16,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
+    const result = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
     if (result?.error) {
-      setError("Email sau parola incorecta");
+      setError("Email sau parolă incorectă");
     } else {
       router.push("/dashboard");
       router.refresh();
@@ -33,44 +27,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[--color-surface] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-2xl font-bold text-[--color-brand]">
+          <Link href="/" className="inline-block font-display font-bold text-2xl text-primary-container">
             ImmAlert
           </Link>
-          <h1 className="text-2xl font-bold text-[--color-foreground] mt-4">Bun venit inapoi</h1>
-          <p className="text-[--color-muted] mt-1 text-sm">Autentifica-te in contul tau</p>
+          <h1 className="font-display font-bold text-on-surface mt-4" style={{ fontSize: 24, lineHeight: "32px" }}>
+            Bun venit înapoi
+          </h1>
+          <p className="text-on-surface-variant mt-1 text-sm">Autentifică-te în contul tău</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-[--color-border] p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-surface-variant p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
+                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="email@exemplu.ro"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[--color-foreground] mb-1.5">Parola</label>
+              <label className="block text-sm font-medium text-on-surface mb-1.5">Parolă</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-[--color-border] rounded-lg px-3 py-2.5 text-[--color-foreground] text-sm focus:outline-none focus:ring-2 focus:ring-[--color-brand] focus:border-transparent transition-colors placeholder:text-[--color-muted-light]"
+                className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
+                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="••••••••"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-[--color-danger-bg] border border-[--color-danger]/20 text-[--color-danger] text-sm px-3 py-2.5 rounded-lg">
+              <div className="bg-error-container text-on-error-container text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>error</span>
                 {error}
               </div>
             )}
@@ -78,23 +76,24 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[--color-brand] text-white font-semibold py-2.5 rounded-lg hover:bg-[--color-brand-dark] transition-colors disabled:opacity-50 text-sm mt-2"
+              className="w-full bg-primary-container text-white font-display font-semibold py-3 rounded-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 text-sm mt-2"
             >
-              {loading ? "Se autentifica..." : "Autentifica-te"}
+              {loading ? "Se autentifică..." : "Autentifică-te"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-[--color-muted] mt-6">
+          <p className="text-center text-sm text-on-surface-variant mt-6">
             Nu ai cont?{" "}
-            <Link href="/register" className="text-[--color-brand] font-medium hover:underline">
-              Creeaza unul gratuit
+            <Link href="/register" className="text-primary-container font-medium hover:underline">
+              Creează unul gratuit
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-[--color-muted-light] mt-6">
-          <Link href="/" className="hover:text-[--color-muted] transition-colors">
-            &larr; Inapoi la pagina principala
+        <p className="text-center text-sm text-outline mt-6">
+          <Link href="/" className="hover:text-on-surface-variant transition-colors flex items-center justify-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+            Înapoi la pagina principală
           </Link>
         </p>
       </div>

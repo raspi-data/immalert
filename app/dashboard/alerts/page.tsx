@@ -19,8 +19,8 @@ const FIELD_LABELS: Record<string, string> = {
   scpTVA: "TVA",
   statusInactivi: "Status inactiv",
   statusEFactura: "e-Factura",
-  adresa: "Adresa",
-  stare_inregistrare: "Stare inregistrare",
+  adresa: "Adresă",
+  stare_inregistrare: "Stare înregistrare",
 };
 
 export default function AlertsPage() {
@@ -43,10 +43,10 @@ export default function AlertsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[--color-foreground]">Alerte</h1>
-        <p className="text-[--color-muted] text-sm mt-1">
+        <h1 className="font-display font-bold text-on-surface" style={{ fontSize: 24, lineHeight: "32px" }}>Alerte</h1>
+        <p className="text-on-surface-variant text-sm mt-1">
           {unread > 0 ? (
-            <span className="inline-flex items-center gap-1 bg-[--color-danger-bg] text-[--color-danger] text-xs font-semibold px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-error-container text-on-error-container text-xs font-semibold px-2.5 py-0.5 rounded-full">
               {unread} alerte necitite
             </span>
           ) : (
@@ -58,64 +58,62 @@ export default function AlertsPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl border border-[--color-border] h-24 animate-pulse" />
+            <div key={i} className="bg-white rounded-xl border border-surface-variant h-24 animate-pulse" />
           ))}
         </div>
       ) : alerts.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[--color-border] p-12 text-center">
-          <div className="w-12 h-12 bg-[--color-success-bg] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--color-success)" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="bg-white rounded-2xl border border-surface-variant p-12 text-center">
+          <div className="w-14 h-14 bg-secondary-container/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 28 }}>check_circle</span>
           </div>
-          <p className="text-[--color-foreground] font-semibold">Nicio alerta</p>
-          <p className="text-[--color-muted] text-sm mt-1">Totul este in regula cu firmele monitorizate</p>
+          <p className="font-display font-semibold text-on-surface">Nicio alertă</p>
+          <p className="text-on-surface-variant text-sm mt-1">Totul este în regulă cu firmele monitorizate</p>
         </div>
       ) : (
         <div className="space-y-3">
           {alerts.map((alert) => (
             <div
               key={alert.id}
-              className={`bg-white rounded-xl border p-5 transition-colors ${
+              className={`bg-white rounded-xl border p-5 transition-all ${
                 alert.tipAlerta === "URGENT"
-                  ? "border-[--color-danger]/30 bg-[--color-danger-bg]/40"
+                  ? "border-error/30 bg-error-container/20"
                   : !alert.citit
-                  ? "border-[--color-brand]/30"
-                  : "border-[--color-border]"
+                  ? "border-primary-container/30"
+                  : "border-surface-variant"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                         alert.tipAlerta === "URGENT"
-                          ? "bg-[--color-danger-bg] text-[--color-danger]"
-                          : "bg-[--color-warning-bg] text-[--color-warning]"
+                          ? "bg-error-container text-on-error-container"
+                          : "bg-tertiary-container text-on-tertiary-container"
                       }`}
                     >
                       {alert.tipAlerta}
                     </span>
                     {!alert.citit && (
-                      <span className="w-2 h-2 bg-[--color-brand] rounded-full" />
+                      <span className="w-2 h-2 bg-primary-container rounded-full" />
                     )}
                     <Link
                       href={`/dashboard/companies/${alert.company.id}`}
-                      className="font-semibold text-[--color-foreground] hover:text-[--color-brand] text-sm transition-colors"
+                      className="font-display font-semibold text-on-surface hover:text-primary-container text-sm transition-colors"
                     >
                       {alert.company.nume}
                     </Link>
-                    <span className="text-[--color-muted-light] text-xs">CUI: {alert.company.cui}</span>
+                    <span className="text-outline text-xs">CUI: {alert.company.cui}</span>
                   </div>
 
                   {alert.detalii?.changes && (
                     <div className="space-y-1.5 mt-2">
                       {alert.detalii.changes.map((c, i) => (
-                        <p key={i} className="text-sm text-[--color-muted]">
-                          <span className="font-medium text-[--color-foreground]">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
-                          <span className="line-through text-[--color-danger]">{c.oldValue || "—"}</span>
+                        <p key={i} className="text-sm text-on-surface-variant">
+                          <span className="font-medium text-on-surface">{FIELD_LABELS[c.field] || c.field}:</span>{" "}
+                          <span className="line-through text-error">{c.oldValue || "—"}</span>
                           {" → "}
-                          <span className="text-[--color-success]">{c.newValue || "—"}</span>
+                          <span className="text-primary-container font-medium">{c.newValue || "—"}</span>
                         </p>
                       ))}
                     </div>
@@ -123,15 +121,15 @@ export default function AlertsPage() {
                 </div>
 
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <span className="text-xs text-[--color-muted-light]">
+                  <span className="text-xs text-outline">
                     {new Date(alert.createdAt).toLocaleDateString("ro-RO")}
                   </span>
                   {!alert.citit && (
                     <button
                       onClick={() => markRead(alert.id)}
-                      className="text-xs text-[--color-brand] hover:text-[--color-brand-dark] transition-colors"
+                      className="text-xs text-primary-container hover:opacity-75 transition-opacity font-medium"
                     >
-                      Marcheaza citit
+                      Marchează citit
                     </button>
                   )}
                 </div>
