@@ -1,10 +1,14 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
+
 const FROM = process.env.RESEND_FROM_EMAIL || "ImmAlert <noreply@immalert.ro>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export async function sendWelcomeEmail(email: string, name?: string) {
+  const resend = getResend();
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -37,6 +41,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
 }
 
 export async function sendTrialExpiryReminder(email: string, name?: string) {
+  const resend = getResend();
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -69,6 +74,7 @@ export async function sendAlertEmail(
   changes: { field: string; oldValue: string; newValue: string }[],
   companyId: string
 ) {
+  const resend = getResend();
   const changesHtml = changes
     .map(
       (c) => `
@@ -118,6 +124,7 @@ export async function sendUrgentAlertEmail(
   alertType: string,
   details: string
 ) {
+  const resend = getResend();
   await resend.emails.send({
     from: FROM,
     to: email,
