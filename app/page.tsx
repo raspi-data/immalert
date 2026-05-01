@@ -236,7 +236,7 @@ export default function LandingPage() {
             <div className="border border-surface-variant rounded-2xl p-8 bg-white">
               <h3 className="font-display font-bold text-on-surface text-lg mb-2">Lunar</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>99</span>
+                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>29</span>
                 <span className="text-on-surface-variant text-sm">RON/lună</span>
               </div>
               <p className="text-on-surface-variant text-sm mb-6">Facturare lunară</p>
@@ -262,10 +262,10 @@ export default function LandingPage() {
               </div>
               <h3 className="font-display font-bold text-on-surface text-lg mb-2">Anual</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>79</span>
+                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>20</span>
                 <span className="text-on-surface-variant text-sm">RON/lună</span>
               </div>
-              <p className="text-on-surface-variant text-sm mb-6">Facturat anual · 948 RON/an</p>
+              <p className="text-on-surface-variant text-sm mb-6">Facturat anual · 240 RON/an</p>
               <ul className="space-y-2.5 mb-8 text-sm text-on-surface-variant">
                 {["Firme nelimitate", "Alerte email instant", "Toate sursele de date", "Suport prioritar"].map((item) => (
                   <li key={item} className="flex items-center gap-2">
