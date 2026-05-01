@@ -97,7 +97,7 @@ export default function LandingPage() {
 
           {/* Right — dashboard image */}
           <div className="relative hidden lg:block">
-            <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(26,188,156,0.1)" }} />
             <div className="bg-white p-4 rounded-3xl shadow-xl border border-surface-variant relative z-10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

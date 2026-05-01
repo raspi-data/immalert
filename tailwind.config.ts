@@ -22,7 +22,7 @@ const config: Config = {
         "on-secondary-container": "#00725e",
         background: "#f8f9fa",
         surface: "#f8f9fa",
-        "surface-bright": "#f8f9fa",
+        "surface-bright": "#ffffff",
         "surface-container": "#edeeef",
         "surface-container-low": "#f3f4f5",
         "surface-container-high": "#e7e8e9",
@@ -47,6 +47,9 @@ const config: Config = {
       },
       borderRadius: {
         "4xl": "2rem",
+      },
+      backdropBlur: {
+        md: "12px",
       },
     },
   },
