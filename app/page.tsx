@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import HeroCheckForm from "@/components/HeroCheckForm";
 import CompanyResultTable from "@/components/CompanyResultTable";
-import type { AnafCompanyData } from "@/lib/anaf";
+import type { FirmaData } from "@/lib/firmeapi";
 
 const features = [
   { icon: "receipt_long", title: "TVA & Înregistrare", desc: "Statusul înregistrării în scopuri de TVA și modificări regim." },
@@ -18,10 +18,10 @@ const features = [
 ];
 
 export default function LandingPage() {
-  const [result, setResult] = useState<{ company: AnafCompanyData; email: string } | null>(null);
+  const [result, setResult] = useState<{ company: FirmaData; email: string } | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  function handleResult(company: AnafCompanyData, email: string) {
+  function handleResult(company: FirmaData, email: string) {
     setResult({ company, email });
     // Scroll to result after render
     setTimeout(() => {

@@ -1,9 +1,9 @@
 "use client";
 
-import type { AnafCompanyData } from "@/lib/anaf";
+import type { FirmaData } from "@/lib/firmeapi";
 
 interface Props {
-  company: AnafCompanyData;
+  company: FirmaData;
   email: string;
   onReset: () => void;
 }
@@ -52,16 +52,10 @@ function SectionHeader({ title, icon }: { title: string; icon: string }) {
 }
 
 export default function CompanyResultTable({ company, email, onReset }: Props) {
-  const formatDate = (d?: string) => {
-    if (!d) return null;
-    if (d === "0000-00-00" || d === "") return null;
-    return d;
-  };
-
   return (
     <section className="max-w-7xl mx-auto px-6 pb-20">
-      {/* Header card */}
       <div className="bg-white border border-surface-variant rounded-3xl overflow-hidden shadow-sm">
+
         {/* Title bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-surface-variant bg-surface-container/50">
           <div className="flex items-center gap-4">
@@ -90,13 +84,13 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
 
         {/* Quick status pills */}
         <div className="flex flex-wrap gap-3 px-6 py-4 border-b border-surface-variant bg-white">
-          <StatusBadge ok={company.scpTVA} labelOk="Platitor TVA" labelNot="Neplatitor TVA" />
-          <StatusBadge ok={!company.statusInactivi} labelOk="Activa fiscal" labelNot="Inactiva fiscal" />
-          <StatusBadge ok={company.statusEFactura} labelOk="Inregistrata e-Factura" labelNot="Neinregistrata e-Factura" />
-          {company.stare_inregistrare && (
+          <StatusBadge ok={company.tva} labelOk="Platitor TVA" labelNot="Neplatitor TVA" />
+          <StatusBadge ok={!company.inactiv} labelOk="Activa fiscal" labelNot="Inactiva fiscal" />
+          <StatusBadge ok={!company.insolventa} labelOk="Fara insolventa" labelNot="In insolventa" />
+          {company.stare && (
             <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold">
               <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-              {company.stare_inregistrare}
+              {company.stare}
             </span>
           )}
         </div>
@@ -106,66 +100,38 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
           <table className="w-full border-collapse">
             <tbody>
 
-              {/* Date generale */}
               <SectionHeader title="Date generale" icon="business" />
               <Row icon="badge" label="Denumire" value={company.denumire} />
               <Row icon="tag" label="CUI" value={company.cui} />
               <Row icon="location_on" label="Adresa" value={company.adresa} />
-              <Row icon="info" label="Stare inregistrare" value={company.stare_inregistrare} />
+              <Row icon="info" label="Stare firma" value={company.stare} />
+              {company.administrator && (
+                <Row icon="person" label="Administrator" value={company.administrator} />
+              )}
+              {company.cod_caen && (
+                <Row
+                  icon="category"
+                  label="Cod CAEN"
+                  value={company.denumire_caen ? `${company.cod_caen} — ${company.denumire_caen}` : company.cod_caen}
+                />
+              )}
 
-              {/* TVA */}
-              <SectionHeader title="Inregistrare TVA" icon="receipt_long" />
+              <SectionHeader title="Status fiscal" icon="receipt_long" />
               <Row
                 icon="receipt_long"
                 label="Platitor TVA"
-                value={<StatusBadge ok={company.scpTVA} labelOk="Da" labelNot="Nu" />}
+                value={<StatusBadge ok={company.tva} labelOk="Da" labelNot="Nu" />}
               />
-              {formatDate(company.dataInactivitate) && (
-                <Row icon="event" label="Data inactivitate TVA" value={formatDate(company.dataInactivitate)} />
-              )}
-              {formatDate(company.dataReactivare) && (
-                <Row icon="event" label="Data reactivare TVA" value={formatDate(company.dataReactivare)} />
-              )}
-              {formatDate(company.dataPublicare) && (
-                <Row icon="event" label="Data publicare TVA" value={formatDate(company.dataPublicare)} />
-              )}
-              {formatDate(company.dataAnulare) && (
-                <Row icon="event" label="Data anulare TVA" value={formatDate(company.dataAnulare)} />
-              )}
-              {company.mesaj && (
-                <Row icon="comment" label="Mesaj ANAF" value={company.mesaj} />
-              )}
-
-              {/* Inactivitate fiscala */}
-              <SectionHeader title="Inactivitate fiscala (RTVAI)" icon="block" />
               <Row
                 icon="block"
-                label="Status inactivitate"
-                value={<StatusBadge ok={!company.statusInactivi} labelOk="Activa" labelNot="Inactiva" />}
+                label="Inactivitate fiscala"
+                value={<StatusBadge ok={!company.inactiv} labelOk="Activa" labelNot="Inactiva" />}
               />
-              {formatDate(company.dataInceputInactivitate) && (
-                <Row icon="event" label="Data inceput inactivitate" value={formatDate(company.dataInceputInactivitate)} />
-              )}
-              {formatDate(company.dataAnulareInactivitate) && (
-                <Row icon="event" label="Data anulare inactivitate" value={formatDate(company.dataAnulareInactivitate)} />
-              )}
-              {formatDate(company.dataPublicareInactivitate) && (
-                <Row icon="event" label="Data publicare inactivitate" value={formatDate(company.dataPublicareInactivitate)} />
-              )}
-
-              {/* e-Factura */}
-              <SectionHeader title="e-Factura RO" icon="description" />
               <Row
-                icon="description"
-                label="Inregistrata e-Factura"
-                value={<StatusBadge ok={company.statusEFactura} labelOk="Da" labelNot="Nu" />}
+                icon="balance"
+                label="Insolventa"
+                value={<StatusBadge ok={!company.insolventa} labelOk="Nu" labelNot="Da — in insolventa" />}
               />
-              {formatDate(company.dataStartEFactura) && (
-                <Row icon="event" label="Data start e-Factura" value={formatDate(company.dataStartEFactura)} />
-              )}
-              {formatDate(company.dataAnulareEFactura) && (
-                <Row icon="event" label="Data anulare e-Factura" value={formatDate(company.dataAnulareEFactura)} />
-              )}
 
             </tbody>
           </table>

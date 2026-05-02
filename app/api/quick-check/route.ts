@@ -18,12 +18,25 @@ export async function POST(req: NextRequest) {
     }
 
     const cuiNormalized = String(parseInt(cuiRaw, 10));
-    const company = await fetchFirmaByCode(cuiNormalized);
+
+    let company;
+    try {
+      company = await fetchFirmaByCode(cuiNormalized);
+    } catch (fetchErr) {
+      console.error("[quick-check] FirmeAPI error:", fetchErr);
+      return NextResponse.json({ error: "Serviciul de date este temporar indisponibil. Incearca din nou." }, { status: 503 });
+    }
+
     if (!company) {
       return NextResponse.json({ error: "Firma cu acest CUI nu a fost gasita." }, { status: 404 });
     }
 
-    await sendQuickReportEmail(String(email).trim(), company);
+    // Email send is best-effort — don't fail the request if it throws
+    try {
+      await sendQuickReportEmail(String(email).trim(), company);
+    } catch (emailErr) {
+      console.error("[quick-check] Email send failed:", emailErr);
+    }
 
     return NextResponse.json({ success: true, company });
   } catch (err) {

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { AnafCompanyData } from "@/lib/anaf";
+import type { FirmaData } from "@/lib/firmeapi";
 
 type State = "idle" | "loading" | "success" | "error";
 
 interface Props {
-  onResult?: (company: AnafCompanyData, email: string) => void;
+  onResult?: (company: FirmaData, email: string) => void;
   onReset?: () => void;
 }
 
@@ -94,25 +94,19 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
           </div>
           <div>
             <p className="font-display font-semibold text-on-surface text-sm">Verificare rapida firma</p>
-            <p className="text-xs text-on-surface-variant">Date in timp real din ANAF</p>
+            <p className="text-xs text-on-surface-variant">Date in timp real</p>
           </div>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="px-8 py-6 flex flex-col gap-5">
-        {/* CUI field */}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="hero-cui" className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
             CUI / Cod Fiscal
           </label>
           <div className="relative">
-            <span
-              className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
-              style={{ fontSize: 20 }}
-            >
-              badge
-            </span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none" style={{ fontSize: 20 }}>badge</span>
             <input
               id="hero-cui"
               type="text"
@@ -127,18 +121,12 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
           </div>
         </div>
 
-        {/* Email field */}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="hero-email" className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
             Adresa Email
           </label>
           <div className="relative">
-            <span
-              className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
-              style={{ fontSize: 20 }}
-            >
-              mail
-            </span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none" style={{ fontSize: 20 }}>mail</span>
             <input
               id="hero-email"
               type="email"
@@ -152,7 +140,6 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
           </div>
         </div>
 
-        {/* Error message */}
         {state === "error" && (
           <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
             <span className="material-symbols-outlined text-red-600 flex-shrink-0" style={{ fontSize: 18 }}>error</span>
@@ -160,7 +147,6 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
           </div>
         )}
 
-        {/* Submit button */}
         <button
           type="submit"
           disabled={state === "loading"}
@@ -183,21 +169,18 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
         </button>
 
         <p className="text-center text-xs text-outline leading-relaxed">
-          Datele sunt preluate din surse publice (ANAF). Gratuit, fara cont.
+          Datele sunt preluate din surse publice oficiale. Gratuit, fara cont.
         </p>
       </form>
 
       {/* Footer badges */}
       <div className="px-8 pb-6 flex flex-wrap gap-3 justify-center">
         {[
-          { icon: "verified", text: "Date oficiale ANAF" },
+          { icon: "verified", text: "Date oficiale" },
           { icon: "lock", text: "Fara stocare date" },
           { icon: "bolt", text: "Instant" },
         ].map((b) => (
-          <div
-            key={b.text}
-            className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full text-xs text-on-surface-variant"
-          >
+          <div key={b.text} className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full text-xs text-on-surface-variant">
             <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 14 }}>{b.icon}</span>
             {b.text}
           </div>
