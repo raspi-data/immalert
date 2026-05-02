@@ -7,8 +7,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { cui, email } = body;
 
-    if (!cui || !/^\d{2,10}$/.test(String(cui).trim())) {
-      return NextResponse.json({ error: "CUI invalid. Introdu un CUI valid format din cifre." }, { status: 400 });
+    // Strip RO prefix if present (e.g. "RO14388698" -> "14388698")
+    const cuiRaw = String(cui).trim().toUpperCase().replace(/^RO/, "");
+    if (!cuiRaw || !/^\d{2,12}$/.test(cuiRaw)) {
+      return NextResponse.json({ error: "CUI invalid. Introdu un CUI valid format din cifre (ex: 14388698 sau RO14388698)." }, { status: 400 });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Adresa de email este invalida." }, { status: 400 });
     }
 
-    const cuiNormalized = String(parseInt(String(cui).trim(), 10));
+    const cuiNormalized = String(parseInt(cuiRaw, 10));
     console.log("[v0] quick-check CUI normalized:", cuiNormalized);
     const company = await fetchSingleCompany(cuiNormalized);
     console.log("[v0] quick-check company result:", company);

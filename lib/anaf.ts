@@ -38,9 +38,17 @@ export async function fetchAnafData(cuis: string[]): Promise<AnafCompanyData[]> 
         signal: AbortSignal.timeout(30000),
       });
 
-      if (!response.ok) continue;
+      console.log("[v0] ANAF response status:", response.status);
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("[v0] ANAF error body:", errText);
+        continue;
+      }
 
       const data = await response.json();
+      console.log("[v0] ANAF response data:", JSON.stringify(data).slice(0, 500));
+
       if (data.found) {
         for (const item of data.found) {
           results.push({
