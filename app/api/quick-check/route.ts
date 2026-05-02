@@ -30,10 +30,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      company: {
-        denumire: company.denumire,
-        cui: company.cui,
-      },
+      company,
     });
   } catch (err) {
     console.error("[quick-check] error:", err);

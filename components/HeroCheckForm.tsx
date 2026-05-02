@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import type { AnafCompanyData } from "@/lib/anaf";
 
 type State = "idle" | "loading" | "success" | "error";
 
-export default function HeroCheckForm() {
+interface Props {
+  onResult?: (company: AnafCompanyData, email: string) => void;
+  onReset?: () => void;
+}
+
+export default function HeroCheckForm({ onResult, onReset }: Props) {
   const [cui, setCui] = useState("");
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>("idle");
   const [message, setMessage] = useState("");
-  const [companyName, setCompanyName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,7 +37,9 @@ export default function HeroCheckForm() {
       }
 
       setState("success");
-      setCompanyName(data.company?.denumire || "firma");
+      if (onResult && data.company) {
+        onResult(data.company, email.trim());
+      }
     } catch {
       setState("error");
       setMessage("Eroare de retea. Verifica conexiunea si incearca din nou.");
@@ -44,26 +51,22 @@ export default function HeroCheckForm() {
     setCui("");
     setEmail("");
     setMessage("");
-    setCompanyName("");
+    if (onReset) onReset();
   }
 
   if (state === "success") {
     return (
-      <div className="bg-white rounded-3xl shadow-xl border border-surface-variant p-8 flex flex-col items-center text-center gap-6">
-        <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center">
-          <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 36 }}>mark_email_read</span>
+      <div className="bg-white rounded-3xl shadow-xl border border-surface-variant p-8 flex flex-col items-center text-center gap-5">
+        <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
+          <span className="material-symbols-outlined text-green-600" style={{ fontSize: 32 }}>check_circle</span>
         </div>
         <div>
-          <h3 className="font-display font-bold text-on-surface text-xl mb-2">Raport trimis!</h3>
+          <h3 className="font-display font-bold text-on-surface text-lg mb-1">Raport trimis pe email!</h3>
           <p className="text-on-surface-variant text-sm leading-relaxed">
-            Raportul pentru <strong className="text-on-surface">{companyName}</strong> a fost trimis la{" "}
-            <strong className="text-on-surface">{email}</strong>.
-            <br />
-            Verifica inbox-ul (sau spam).
+            Datele complete sunt afisate mai jos.
           </p>
         </div>
-        <div className="w-full border-t border-surface-variant pt-6 flex flex-col gap-3">
-          <p className="text-xs text-outline">Vrei monitorizare continua si alerte automate?</p>
+        <div className="w-full border-t border-surface-variant pt-5 flex flex-col gap-3">
           <a
             href="/register"
             className="w-full text-center bg-primary-container text-white py-3 rounded-xl font-display font-semibold text-sm hover:opacity-90 transition-all active:scale-95"
@@ -114,10 +117,9 @@ export default function HeroCheckForm() {
               id="hero-cui"
               type="text"
               inputMode="numeric"
-              pattern="\d{2,10}"
-              placeholder="ex: 12345678"
+              placeholder="ex: 12345678 sau RO12345678"
               value={cui}
-              onChange={(e) => setCui(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) => setCui(e.target.value.replace(/[^0-9ROro]/g, ""))}
               required
               disabled={state === "loading"}
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-surface-variant bg-surface-bright text-on-surface placeholder:text-outline text-sm focus:outline-none focus:ring-2 focus:ring-primary-container/40 focus:border-primary-container transition disabled:opacity-50"
@@ -152,9 +154,9 @@ export default function HeroCheckForm() {
 
         {/* Error message */}
         {state === "error" && (
-          <div className="flex items-start gap-2 bg-error-container/20 border border-error-container rounded-xl px-4 py-3">
-            <span className="material-symbols-outlined text-error flex-shrink-0" style={{ fontSize: 18 }}>error</span>
-            <p className="text-sm text-error leading-snug">{message}</p>
+          <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <span className="material-symbols-outlined text-red-600 flex-shrink-0" style={{ fontSize: 18 }}>error</span>
+            <p className="text-sm text-red-700 leading-snug">{message}</p>
           </div>
         )}
 
@@ -174,8 +176,8 @@ export default function HeroCheckForm() {
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>send</span>
-              Trimite raport pe email
+              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>search</span>
+              Verifica firma
             </>
           )}
         </button>
