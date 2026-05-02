@@ -33,21 +33,25 @@ export async function fetchAnafData(cuis: string[]): Promise<AnafCompanyData[]> 
 
       const response = await fetch("https://api.anaf.ro/v8/ws/tva", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json, text/plain, */*",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Origin": "https://www.anaf.ro",
+          "Referer": "https://www.anaf.ro/",
+          "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
+        },
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(30000),
       });
 
-      console.log("[v0] ANAF response status:", response.status);
-
       if (!response.ok) {
         const errText = await response.text();
-        console.error("[v0] ANAF error body:", errText);
+        console.error("[v0] ANAF error:", response.status, errText);
         continue;
       }
 
       const data = await response.json();
-      console.log("[v0] ANAF response data:", JSON.stringify(data).slice(0, 500));
 
       if (data.found) {
         for (const item of data.found) {
