@@ -1,5 +1,10 @@
+"use client";
+
+import { useState, useRef } from "react";
 import Link from "next/link";
 import HeroCheckForm from "@/components/HeroCheckForm";
+import CompanyResultTable from "@/components/CompanyResultTable";
+import type { AnafCompanyData } from "@/lib/anaf";
 
 const features = [
   { icon: "receipt_long", title: "TVA & Înregistrare", desc: "Statusul înregistrării în scopuri de TVA și modificări regim." },
@@ -13,6 +18,21 @@ const features = [
 ];
 
 export default function LandingPage() {
+  const [result, setResult] = useState<{ company: AnafCompanyData; email: string } | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  function handleResult(company: AnafCompanyData, email: string) {
+    setResult({ company, email });
+    // Scroll to result after render
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
+
+  function handleReset() {
+    setResult(null);
+  }
+
   return (
     <div className="min-h-screen bg-background font-sans text-on-surface">
 
@@ -100,11 +120,22 @@ export default function LandingPage() {
           <div className="relative hidden lg:block">
             <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(26,188,156,0.1)" }} />
             <div className="relative z-10">
-              <HeroCheckForm />
+              <HeroCheckForm onResult={handleResult} onReset={handleReset} />
             </div>
           </div>
         </div>
       </header>
+
+      {/* ── Company Result Table ── */}
+      {result && (
+        <div ref={resultRef} className="scroll-mt-24">
+          <CompanyResultTable
+            company={result.company}
+            email={result.email}
+            onReset={handleReset}
+          />
+        </div>
+      )}
 
       {/* ── Quick Stats ── */}
       <section className="max-w-7xl mx-auto px-6 py-12">
