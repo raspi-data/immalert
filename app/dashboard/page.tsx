@@ -9,10 +9,11 @@ interface Company {
   nume: string;
   lastChecked: string | null;
   dateAnaf: {
-    scpTVA?: boolean;
-    statusInactivi?: boolean;
-    statusEFactura?: boolean;
+    tva?: boolean;
+    inactiv?: boolean;
+    insolventa?: boolean;
     adresa?: string;
+    administrator?: string;
   } | null;
   alerts: { id: string }[];
 }
@@ -145,7 +146,7 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {companies.map((company) => {
               const hasAlerts = company.alerts.length > 0;
-              const isInactive = company.dateAnaf?.statusInactivi;
+              const isInactive = company.dateAnaf?.inactiv;
               return (
                 <div
                   key={company.id}
@@ -184,8 +185,8 @@ export default function DashboardPage() {
                       </div>
                       <p className="text-on-surface-variant text-xs mt-0.5">
                         CUI: {company.cui}
-                        {company.dateAnaf?.scpTVA && " • TVA activ"}
-                        {company.dateAnaf?.statusEFactura && " • e-Factura"}
+                        {company.dateAnaf?.tva && " • TVA activ"}
+                        {company.dateAnaf?.insolventa && " • Insolvență"}
                       </p>
                     </div>
                   </div>

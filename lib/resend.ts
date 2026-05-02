@@ -72,14 +72,29 @@ export async function sendAlertEmail(
   email: string,
   companyName: string,
   changes: { field: string; oldValue: string; newValue: string }[],
-  companyId: string
+  companyId: string,
+  tipAlerta: "IMPORTANT" | "INFO" = "INFO"
 ) {
   const resend = getResend();
+  const headerColor = tipAlerta === "IMPORTANT" ? "#f59e0b" : "#3b82f6";
+  const emoji = tipAlerta === "IMPORTANT" ? "⚠️" : "ℹ️";
+  const label = tipAlerta === "IMPORTANT" ? "Alertă Importantă" : "Informație";
+
+  const FIELD_LABELS: Record<string, string> = {
+    tva: "TVA",
+    inactiv: "Status inactiv",
+    insolventa: "Insolvență",
+    adresa: "Adresă",
+    stare: "Stare firmă",
+    cod_caen: "Cod CAEN",
+    administrator: "Administrator",
+  };
+
   const changesHtml = changes
     .map(
       (c) => `
       <tr>
-        <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#374151;font-weight:500;">${c.field}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#374151;font-weight:500;">${FIELD_LABELS[c.field] || c.field}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#dc2626;">${c.oldValue || "—"}</td>
         <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#16a34a;">${c.newValue || "—"}</td>
       </tr>
@@ -90,11 +105,11 @@ export async function sendAlertEmail(
   await resend.emails.send({
     from: FROM,
     to: email,
-    subject: `⚠️ Alertă ImmAlert — ${companyName} a suferit modificări`,
+    subject: `${emoji} ${label} ImmAlert — ${companyName} a suferit modificări`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#f59e0b;padding:24px;border-radius:8px 8px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">⚠️ ImmAlert — Alertă</h1>
+        <div style="background:${headerColor};padding:24px;border-radius:8px 8px 0 0;">
+          <h1 style="color:white;margin:0;font-size:24px;">${emoji} ImmAlert — ${label}</h1>
         </div>
         <div style="background:#f9fafb;padding:32px;border-radius:0 0 8px 8px;">
           <h2 style="color:#111827;">Modificări detectate la <em>${companyName}</em></h2>
@@ -112,86 +127,6 @@ export async function sendAlertEmail(
           <a href="${APP_URL}/dashboard/companies/${companyId}" style="display:inline-block;background:#1e40af;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:24px;">
             Vezi detalii în dashboard →
           </a>
-        </div>
-      </div>
-    `,
-  });
-}
-
-export async function sendQuickReportEmail(
-  email: string,
-  company: {
-    cui: string;
-    denumire: string;
-    adresa: string;
-    stare_inregistrare: string;
-    scpTVA: boolean;
-    statusInactivi: boolean;
-    statusEFactura: boolean;
-    dataInactivitate?: string;
-    dataStartEFactura?: string;
-  }
-) {
-  const resend = getResend();
-
-  const statusBadge = (ok: boolean, labelOk: string, labelNot: string) =>
-    ok
-      ? `<span style="background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelOk}</span>`
-      : `<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelNot}</span>`;
-
-  const rows = [
-    { label: "Denumire", value: company.denumire },
-    { label: "CUI", value: company.cui },
-    { label: "Adresa", value: company.adresa || "—" },
-    { label: "Stare inregistrare", value: company.stare_inregistrare || "—" },
-    {
-      label: "TVA",
-      value: statusBadge(company.scpTVA, "Platitor TVA", "Neplatitor TVA"),
-    },
-    {
-      label: "Inactivitate fiscala",
-      value: statusBadge(!company.statusInactivi, "Activa", "Inactiva"),
-    },
-    {
-      label: "e-Factura",
-      value: statusBadge(company.statusEFactura, "Inregistrata", "Neinregistrata"),
-    },
-  ];
-
-  const rowsHtml = rows
-    .map(
-      (r) => `
-      <tr>
-        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:14px;width:45%;">${r.label}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;font-weight:500;">${r.value}</td>
-      </tr>`
-    )
-    .join("");
-
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: `Raport ImmAlert — ${company.denumire} (CUI ${company.cui})`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9fafb;padding:32px;">
-        <div style="background:#1e3a5f;padding:24px 32px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:22px;font-weight:700;letter-spacing:-0.5px;">ImmAlert</h1>
-          <p style="color:#93c5fd;margin:6px 0 0;font-size:14px;">Raport rapid firma</p>
-        </div>
-        <div style="background:white;padding:32px;border-radius:0 0 12px 12px;border:1px solid #e5e7eb;border-top:none;">
-          <h2 style="color:#111827;margin:0 0 4px;font-size:20px;">${company.denumire}</h2>
-          <p style="color:#6b7280;margin:0 0 24px;font-size:14px;">CUI: ${company.cui} &nbsp;·&nbsp; Generat pe ${new Date().toLocaleDateString("ro-RO")}</p>
-          <table style="width:100%;border-collapse:collapse;border:1px solid #f3f4f6;border-radius:8px;overflow:hidden;">
-            <tbody>${rowsHtml}</tbody>
-          </table>
-          <div style="margin-top:28px;padding:16px;background:#f0f9ff;border-radius:8px;border-left:4px solid #1e40af;">
-            <p style="margin:0;color:#1e40af;font-size:14px;font-weight:600;">Vrei monitorizare continua?</p>
-            <p style="margin:6px 0 12px;color:#374151;font-size:13px;">Primesti alerte automate pe email de fiecare data cand se schimba ceva la aceasta firma.</p>
-            <a href="${APP_URL}/register" style="display:inline-block;background:#1e40af;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
-              Incepe Trial Gratuit 14 Zile →
-            </a>
-          </div>
-          <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Acest raport a fost generat la cerere prin ImmAlert. Datele provin din surse publice (ANAF).</p>
         </div>
       </div>
     `,
@@ -222,6 +157,79 @@ export async function sendUrgentAlertEmail(
           <a href="${APP_URL}/dashboard/alerts" style="display:inline-block;background:#dc2626;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:16px;">
             Vezi alertele →
           </a>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendQuickReportEmail(
+  email: string,
+  company: {
+    cui: string;
+    denumire: string;
+    adresa: string;
+    tva: boolean;
+    inactiv: boolean;
+    insolventa: boolean;
+    stare?: string;
+    administrator?: string;
+    cod_caen?: string;
+  }
+) {
+  const resend = getResend();
+
+  const statusBadge = (ok: boolean, labelOk: string, labelNot: string) =>
+    ok
+      ? `<span style="background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelOk}</span>`
+      : `<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelNot}</span>`;
+
+  const rows = [
+    { label: "Denumire", value: company.denumire },
+    { label: "CUI", value: company.cui },
+    { label: "Adresa", value: company.adresa || "—" },
+    { label: "Stare firmă", value: company.stare || "—" },
+    { label: "TVA", value: statusBadge(company.tva, "Platitor TVA", "Neplatitor TVA") },
+    { label: "Status", value: statusBadge(!company.inactiv, "Activa", "Inactiva") },
+    { label: "Insolvență", value: statusBadge(!company.insolventa, "Nu", "Da") },
+    ...(company.administrator ? [{ label: "Administrator", value: company.administrator }] : []),
+    ...(company.cod_caen ? [{ label: "Cod CAEN", value: company.cod_caen }] : []),
+  ];
+
+  const rowsHtml = rows
+    .map(
+      (r) => `
+      <tr>
+        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:14px;width:45%;">${r.label}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;font-weight:500;">${r.value}</td>
+      </tr>`
+    )
+    .join("");
+
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: `Raport ImmAlert — ${company.denumire} (CUI ${company.cui})`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9fafb;padding:32px;">
+        <div style="background:#1e3a5f;padding:24px 32px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:22px;font-weight:700;letter-spacing:-0.5px;">ImmAlert</h1>
+          <p style="color:#93c5fd;margin:6px 0 0;font-size:14px;">Raport rapid firmă</p>
+        </div>
+        <div style="background:white;padding:32px;border-radius:0 0 12px 12px;border:1px solid #e5e7eb;border-top:none;">
+          <h2 style="color:#111827;margin:0 0 4px;font-size:20px;">${company.denumire}</h2>
+          <p style="color:#6b7280;margin:0 0 24px;font-size:14px;">CUI: ${company.cui} &nbsp;·&nbsp; Generat pe ${new Date().toLocaleDateString("ro-RO")}</p>
+          <table style="width:100%;border-collapse:collapse;border:1px solid #f3f4f6;border-radius:8px;overflow:hidden;">
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div style="margin-top:28px;padding:16px;background:#f0f9ff;border-radius:8px;border-left:4px solid #1e40af;">
+            <p style="margin:0;color:#1e40af;font-size:14px;font-weight:600;">Vrei monitorizare continuă?</p>
+            <p style="margin:6px 0 12px;color:#374151;font-size:13px;">Primești alerte automate pe email de fiecare dată când se schimbă ceva la această firmă.</p>
+            <a href="${APP_URL}/register" style="display:inline-block;background:#1e40af;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+              Începe Trial Gratuit 14 Zile →
+            </a>
+          </div>
+          <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Datele provin din FirmeAPI.ro — surse publice oficiale din România.</p>
         </div>
       </div>
     `,

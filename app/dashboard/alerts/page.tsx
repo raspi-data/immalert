@@ -16,12 +16,27 @@ interface Alert {
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  scpTVA: "TVA",
-  statusInactivi: "Status inactiv",
-  statusEFactura: "e-Factura",
+  tva: "TVA",
+  inactiv: "Status inactiv",
+  insolventa: "Insolvență",
   adresa: "Adresă",
-  stare_inregistrare: "Stare înregistrare",
+  stare: "Stare firmă",
+  cod_caen: "Cod CAEN",
+  administrator: "Administrator",
 };
+
+function alertBadgeClass(tipAlerta: string) {
+  if (tipAlerta === "URGENT") return "bg-error-container text-on-error-container";
+  if (tipAlerta === "IMPORTANT") return "bg-tertiary-container text-on-tertiary-container";
+  return "bg-secondary-container text-on-secondary-container";
+}
+
+function alertRowClass(tipAlerta: string, citit: boolean) {
+  if (tipAlerta === "URGENT") return "border-error/30 bg-error-container/20";
+  if (tipAlerta === "IMPORTANT") return "border-tertiary/30 bg-tertiary-container/10";
+  if (!citit) return "border-primary-container/30";
+  return "border-surface-variant";
+}
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -74,24 +89,12 @@ export default function AlertsPage() {
           {alerts.map((alert) => (
             <div
               key={alert.id}
-              className={`bg-white rounded-xl border p-5 transition-all ${
-                alert.tipAlerta === "URGENT"
-                  ? "border-error/30 bg-error-container/20"
-                  : !alert.citit
-                  ? "border-primary-container/30"
-                  : "border-surface-variant"
-              }`}
+              className={`bg-white rounded-xl border p-5 transition-all ${alertRowClass(alert.tipAlerta, alert.citit)}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
-                    <span
-                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                        alert.tipAlerta === "URGENT"
-                          ? "bg-error-container text-on-error-container"
-                          : "bg-tertiary-container text-on-tertiary-container"
-                      }`}
-                    >
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${alertBadgeClass(alert.tipAlerta)}`}>
                       {alert.tipAlerta}
                     </span>
                     {!alert.citit && (

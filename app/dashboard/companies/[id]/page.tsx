@@ -4,16 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
-interface AnafData {
+interface FirmaData {
   denumire?: string;
   adresa?: string;
-  stare_inregistrare?: string;
-  scpTVA?: boolean;
-  statusInactivi?: boolean;
-  statusEFactura?: boolean;
-  dataInactivitate?: string;
-  dataReactivare?: string;
-  dataStartEFactura?: string;
+  stare?: string;
+  tva?: boolean;
+  cod_caen?: string;
+  denumire_caen?: string;
+  administrator?: string;
+  inactiv?: boolean;
+  insolventa?: boolean;
 }
 
 interface Alert {
@@ -32,19 +32,25 @@ interface Company {
   cui: string;
   nume: string;
   lastChecked: string | null;
-  dateAnaf: AnafData | null;
-  dateOnrc: Record<string, unknown> | null;
-  dateBpi: Record<string, unknown> | null;
+  dateAnaf: FirmaData | null;
   alerts: Alert[];
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  scpTVA: "TVA",
-  statusInactivi: "Status inactiv",
-  statusEFactura: "e-Factura",
+  tva: "TVA",
+  inactiv: "Status inactiv",
+  insolventa: "Insolvență",
   adresa: "Adresă",
-  stare_inregistrare: "Stare înregistrare",
+  stare: "Stare firmă",
+  cod_caen: "Cod CAEN",
+  administrator: "Administrator",
 };
+
+function alertBadgeClass(tipAlerta: string) {
+  if (tipAlerta === "URGENT") return "bg-error-container text-on-error-container";
+  if (tipAlerta === "IMPORTANT") return "bg-tertiary-container text-on-tertiary-container";
+  return "bg-secondary-container text-on-secondary-container";
+}
 
 export default function CompanyPage() {
   const { id } = useParams<{ id: string }>();
@@ -78,42 +84,51 @@ export default function CompanyPage() {
     );
   }
 
-  const anaf = company.dateAnaf;
+  const firma = company.dateAnaf;
 
   return (
     <div className="space-y-5">
-      {/* Breadcrumb */}
       <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface text-sm transition-colors">
         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
         Dashboard
       </Link>
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display font-bold text-on-surface" style={{ fontSize: 24, lineHeight: "32px" }}>{company.nume}</h1>
           <p className="text-on-surface-variant text-sm mt-1">CUI: {company.cui}</p>
         </div>
-        {anaf?.statusInactivi && (
-          <span className="bg-error-container text-on-error-container text-sm font-bold px-3 py-1 rounded-full flex-shrink-0">
-            INACTIVĂ FISCAL
-          </span>
-        )}
+        <div className="flex gap-2 flex-wrap">
+          {firma?.inactiv && (
+            <span className="bg-error-container text-on-error-container text-sm font-bold px-3 py-1 rounded-full flex-shrink-0">
+              INACTIVĂ FISCAL
+            </span>
+          )}
+          {firma?.insolventa && (
+            <span className="bg-error-container text-on-error-container text-sm font-bold px-3 py-1 rounded-full flex-shrink-0">
+              INSOLVENȚĂ
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* ANAF Data */}
-      {anaf && (
+      {firma && (
         <div className="bg-white rounded-2xl border border-surface-variant p-6">
-          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date ANAF</h2>
+          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date firmă</h2>
           <div className="grid sm:grid-cols-2 gap-5">
-            <DataRow label="Denumire" value={anaf.denumire} />
-            <DataRow label="Adresă" value={anaf.adresa} />
-            <DataRow label="Stare înregistrare" value={anaf.stare_inregistrare} />
-            <DataRow label="TVA activ" value={anaf.scpTVA ? "Da" : "Nu"} colored={anaf.scpTVA} />
-            <DataRow label="Status inactiv" value={anaf.statusInactivi ? "Da" : "Nu"} colored={!anaf.statusInactivi} />
-            <DataRow label="e-Factura" value={anaf.statusEFactura ? "Activă" : "Inactivă"} />
-            {anaf.dataInactivitate && <DataRow label="Data inactivitate" value={anaf.dataInactivitate} />}
-            {anaf.dataStartEFactura && <DataRow label="Data start e-Factura" value={anaf.dataStartEFactura} />}
+            <DataRow label="Denumire" value={firma.denumire} />
+            <DataRow label="Adresă" value={firma.adresa} />
+            <DataRow label="Stare firmă" value={firma.stare} />
+            <DataRow label="TVA activ" value={firma.tva ? "Da" : "Nu"} colored={firma.tva} />
+            <DataRow label="Status inactiv" value={firma.inactiv ? "Da" : "Nu"} colored={!firma.inactiv} />
+            <DataRow label="Insolvență" value={firma.insolventa ? "Da" : "Nu"} colored={!firma.insolventa} />
+            {firma.administrator && <DataRow label="Administrator" value={firma.administrator} />}
+            {firma.cod_caen && (
+              <DataRow
+                label="Cod CAEN"
+                value={firma.denumire_caen ? `${firma.cod_caen} — ${firma.denumire_caen}` : firma.cod_caen}
+              />
+            )}
           </div>
           <p className="text-xs text-outline mt-5 pt-4 border-t border-surface-container">
             Ultima verificare:{" "}
@@ -124,19 +139,6 @@ export default function CompanyPage() {
         </div>
       )}
 
-      {/* ONRC Data */}
-      {company.dateOnrc && Object.keys(company.dateOnrc).length > 0 && (
-        <div className="bg-white rounded-2xl border border-surface-variant p-6">
-          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date ONRC</h2>
-          <div className="grid sm:grid-cols-2 gap-5">
-            {Object.entries(company.dateOnrc).map(([k, v]) => (
-              <DataRow key={k} label={k} value={String(v)} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Alerts */}
       <div className="bg-white rounded-2xl border border-surface-variant p-6">
         <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">
           Istoricul alertelor{" "}
@@ -159,17 +161,13 @@ export default function CompanyPage() {
                 className={`rounded-xl p-4 border ${
                   alert.tipAlerta === "URGENT"
                     ? "border-error/30 bg-error-container/20"
+                    : alert.tipAlerta === "IMPORTANT"
+                    ? "border-tertiary/30 bg-tertiary-container/10"
                     : "border-surface-variant"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                      alert.tipAlerta === "URGENT"
-                        ? "bg-error-container text-on-error-container"
-                        : "bg-tertiary-container text-on-tertiary-container"
-                    }`}
-                  >
+                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${alertBadgeClass(alert.tipAlerta)}`}>
                     {alert.tipAlerta}
                   </span>
                   <span className="text-xs text-outline">
@@ -199,27 +197,13 @@ export default function CompanyPage() {
   );
 }
 
-function DataRow({
-  label,
-  value,
-  colored,
-}: {
-  label: string;
-  value?: string;
-  colored?: boolean;
-}) {
+function DataRow({ label, value, colored }: { label: string; value?: string; colored?: boolean }) {
   return (
     <div>
       <p className="text-xs text-outline font-semibold uppercase tracking-wide mb-1">{label}</p>
-      <p
-        className={`text-sm font-medium ${
-          colored === true
-            ? "text-primary-container"
-            : colored === false
-            ? "text-error"
-            : "text-on-surface"
-        }`}
-      >
+      <p className={`text-sm font-medium ${
+        colored === true ? "text-primary-container" : colored === false ? "text-error" : "text-on-surface"
+      }`}>
         {value || "—"}
       </p>
     </div>

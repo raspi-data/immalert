@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { fetchSingleCompany } from "@/lib/anaf";
+import { fetchFirmaByCode } from "@/lib/firmeapi";
 import { z } from "zod";
 
 const addSchema = z.object({
@@ -46,17 +46,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Firma este deja monitorizată" }, { status: 409 });
     }
 
-    const anafData = await fetchSingleCompany(cui);
-    if (!anafData) {
-      return NextResponse.json({ error: "CUI-ul nu a fost găsit în ANAF" }, { status: 404 });
+    const firmaData = await fetchFirmaByCode(cui);
+    if (!firmaData) {
+      return NextResponse.json({ error: "CUI-ul nu a fost găsit" }, { status: 404 });
     }
 
     const company = await prisma.company.create({
       data: {
         cui,
-        nume: anafData.denumire,
+        nume: firmaData.denumire,
         userId: session.user.id,
-        dateAnaf: JSON.parse(JSON.stringify(anafData)),
+        dateAnaf: JSON.parse(JSON.stringify(firmaData)),
         lastChecked: new Date(),
       },
     });
