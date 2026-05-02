@@ -73,6 +73,8 @@ export async function fetchAnafData(cuis: string[]): Promise<AnafCompanyData[]> 
 }
 
 export async function fetchSingleCompany(cui: string): Promise<AnafCompanyData | null> {
-  const results = await fetchAnafData([cui]);
-  return results.find((r) => r.cui === cui) || null;
+  const normalizedCui = String(parseInt(cui, 10));
+  const results = await fetchAnafData([normalizedCui]);
+  // Match by numeric value to avoid string vs number mismatch from ANAF response
+  return results.find((r) => parseInt(r.cui, 10) === parseInt(cui, 10)) || null;
 }

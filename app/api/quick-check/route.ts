@@ -16,7 +16,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Adresa de email este invalida." }, { status: 400 });
     }
 
-    const company = await fetchSingleCompany(String(cui).trim());
+    const cuiNormalized = String(parseInt(String(cui).trim(), 10));
+    console.log("[v0] quick-check CUI normalized:", cuiNormalized);
+    const company = await fetchSingleCompany(cuiNormalized);
+    console.log("[v0] quick-check company result:", company);
     if (!company) {
       return NextResponse.json({ error: "Firma cu acest CUI nu a fost gasita in baza ANAF." }, { status: 404 });
     }
