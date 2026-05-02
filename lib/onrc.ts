@@ -169,7 +169,7 @@ export async function runOnrcCheck(): Promise<
 
     await prisma.company.update({
       where: { id: company.id },
-      data: { dateOnrc: newData as unknown as Record<string, unknown> },
+      data: { dateOnrc: JSON.parse(JSON.stringify(newData)) },
     });
   }
 
