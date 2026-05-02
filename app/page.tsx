@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroCheckForm from "@/components/HeroCheckForm";
 
 const features = [
   { icon: "receipt_long", title: "TVA & Înregistrare", desc: "Statusul înregistrării în scopuri de TVA și modificări regim." },
@@ -95,28 +96,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right — dashboard image */}
+          {/* Right — quick check form */}
           <div className="relative hidden lg:block">
             <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(26,188,156,0.1)" }} />
-            <div className="bg-white p-4 rounded-3xl shadow-xl border border-surface-variant relative z-10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpRthKZ8NYC5knn0UnZLBdGGitqgRRNqBalIpnwou6DSRQ4TCw_rhtT5iYuomduuB6Z8f7u-4Nuvu1wNtTAGIEMazI5RquV-0-yWH61osWMwkkSnH9LTvN5N0rL2-vMCiJXI3PMGhvHLC-VRnXuDP6HzULh_1j6Kob97v70lOFNisRVKwQwrJr0V7i5chwxERSI6IdUyzTm8gMVAfNdMnUTjUSTApre8IkwvAe5sTBjYFODiwwxUuSkNupj3Wed-L-js1FLA0WLziU"
-                alt="ImmAlert dashboard preview"
-                className="rounded-2xl w-full h-auto object-cover"
-              />
-              {/* Alert card overlay */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-lg border border-surface-variant max-w-[200px]">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-error" style={{ fontSize: 20 }}>warning</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-on-surface">Alertă Insolvență</p>
-                    <p className="text-on-surface-variant" style={{ fontSize: 10 }}>S.C. Exemplu S.R.L.</p>
-                  </div>
-                </div>
-              </div>
+            <div className="relative z-10">
+              <HeroCheckForm />
             </div>
           </div>
         </div>

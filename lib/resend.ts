@@ -118,6 +118,86 @@ export async function sendAlertEmail(
   });
 }
 
+export async function sendQuickReportEmail(
+  email: string,
+  company: {
+    cui: string;
+    denumire: string;
+    adresa: string;
+    stare_inregistrare: string;
+    scpTVA: boolean;
+    statusInactivi: boolean;
+    statusEFactura: boolean;
+    dataInactivitate?: string;
+    dataStartEFactura?: string;
+  }
+) {
+  const resend = getResend();
+
+  const statusBadge = (ok: boolean, labelOk: string, labelNot: string) =>
+    ok
+      ? `<span style="background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelOk}</span>`
+      : `<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelNot}</span>`;
+
+  const rows = [
+    { label: "Denumire", value: company.denumire },
+    { label: "CUI", value: company.cui },
+    { label: "Adresa", value: company.adresa || "—" },
+    { label: "Stare inregistrare", value: company.stare_inregistrare || "—" },
+    {
+      label: "TVA",
+      value: statusBadge(company.scpTVA, "Platitor TVA", "Neplatitor TVA"),
+    },
+    {
+      label: "Inactivitate fiscala",
+      value: statusBadge(!company.statusInactivi, "Activa", "Inactiva"),
+    },
+    {
+      label: "e-Factura",
+      value: statusBadge(company.statusEFactura, "Inregistrata", "Neinregistrata"),
+    },
+  ];
+
+  const rowsHtml = rows
+    .map(
+      (r) => `
+      <tr>
+        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:14px;width:45%;">${r.label}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#111827;font-size:14px;font-weight:500;">${r.value}</td>
+      </tr>`
+    )
+    .join("");
+
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: `Raport ImmAlert — ${company.denumire} (CUI ${company.cui})`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9fafb;padding:32px;">
+        <div style="background:#1e3a5f;padding:24px 32px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:22px;font-weight:700;letter-spacing:-0.5px;">ImmAlert</h1>
+          <p style="color:#93c5fd;margin:6px 0 0;font-size:14px;">Raport rapid firma</p>
+        </div>
+        <div style="background:white;padding:32px;border-radius:0 0 12px 12px;border:1px solid #e5e7eb;border-top:none;">
+          <h2 style="color:#111827;margin:0 0 4px;font-size:20px;">${company.denumire}</h2>
+          <p style="color:#6b7280;margin:0 0 24px;font-size:14px;">CUI: ${company.cui} &nbsp;·&nbsp; Generat pe ${new Date().toLocaleDateString("ro-RO")}</p>
+          <table style="width:100%;border-collapse:collapse;border:1px solid #f3f4f6;border-radius:8px;overflow:hidden;">
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div style="margin-top:28px;padding:16px;background:#f0f9ff;border-radius:8px;border-left:4px solid #1e40af;">
+            <p style="margin:0;color:#1e40af;font-size:14px;font-weight:600;">Vrei monitorizare continua?</p>
+            <p style="margin:6px 0 12px;color:#374151;font-size:13px;">Primesti alerte automate pe email de fiecare data cand se schimba ceva la aceasta firma.</p>
+            <a href="${APP_URL}/register" style="display:inline-block;background:#1e40af;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+              Incepe Trial Gratuit 14 Zile →
+            </a>
+          </div>
+          <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Acest raport a fost generat la cerere prin ImmAlert. Datele provin din surse publice (ANAF).</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendUrgentAlertEmail(
   email: string,
   companyName: string,
