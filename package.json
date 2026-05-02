@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "cron": "ts-node scripts/cron.ts",
+    "migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"
