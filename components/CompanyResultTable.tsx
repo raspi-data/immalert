@@ -51,7 +51,14 @@ function SectionHeader({ title, icon }: { title: string; icon: string }) {
   );
 }
 
+function formatRON(value: number): string {
+  if (value === 0) return "—";
+  return new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON", maximumFractionDigits: 0 }).format(value);
+}
+
 export default function CompanyResultTable({ company, email, onReset }: Props) {
+  const latestBilant = company.bilant?.sort((a, b) => b.an - a.an)[0];
+
   return (
     <section className="max-w-7xl mx-auto px-6 pb-20">
       <div className="bg-white border border-surface-variant rounded-3xl overflow-hidden shadow-sm">
@@ -103,6 +110,9 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
               <SectionHeader title="Date generale" icon="business" />
               <Row icon="badge" label="Denumire" value={company.denumire} />
               <Row icon="tag" label="CUI" value={company.cui} />
+              {company.nr_reg_com && (
+                <Row icon="article" label="Nr. Reg. Com." value={company.nr_reg_com} />
+              )}
               <Row icon="location_on" label="Adresa" value={company.adresa} />
               <Row icon="info" label="Stare firma" value={company.stare} />
               {company.administrator && (
@@ -114,6 +124,9 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
                   label="Cod CAEN"
                   value={company.denumire_caen ? `${company.cod_caen} — ${company.denumire_caen}` : company.cod_caen}
                 />
+              )}
+              {company.capital_social !== undefined && company.capital_social > 0 && (
+                <Row icon="payments" label="Capital social" value={formatRON(company.capital_social)} />
               )}
 
               <SectionHeader title="Status fiscal" icon="receipt_long" />
@@ -132,6 +145,25 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
                 label="Insolventa"
                 value={<StatusBadge ok={!company.insolventa} labelOk="Nu" labelNot="Da — in insolventa" />}
               />
+
+              {latestBilant && (
+                <>
+                  <SectionHeader title={`Date financiare ${latestBilant.an}`} icon="query_stats" />
+                  {latestBilant.cifra_afaceri > 0 && (
+                    <Row icon="trending_up" label="Cifra de afaceri" value={formatRON(latestBilant.cifra_afaceri)} />
+                  )}
+                  {latestBilant.profit !== 0 && (
+                    <Row
+                      icon="account_balance"
+                      label="Profit net"
+                      value={<span className={latestBilant.profit >= 0 ? "text-green-700" : "text-red-700"}>{formatRON(latestBilant.profit)}</span>}
+                    />
+                  )}
+                  {latestBilant.angajati > 0 && (
+                    <Row icon="people" label="Angajati" value={String(latestBilant.angajati)} />
+                  )}
+                </>
+              )}
 
             </tbody>
           </table>
