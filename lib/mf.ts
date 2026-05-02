@@ -176,15 +176,13 @@ export async function runMfBilantCheck(): Promise<
       results.push({ companyId: company.id, cui: company.cui, nume: company.nume, changes });
     }
 
-    // Persist updated bilant data
+    // Persist updated bilant data — cast through JSON to satisfy Prisma's InputJsonValue
+    const updatedDateOnrc = JSON.parse(
+      JSON.stringify({ ...(existing as object), bilant: newData })
+    );
     await prisma.company.update({
       where: { id: company.id },
-      data: {
-        dateOnrc: {
-          ...(existing as object),
-          bilant: newData,
-        },
-      },
+      data: { dateOnrc: updatedDateOnrc },
     });
   }
 
