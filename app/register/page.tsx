@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -31,8 +29,14 @@ export default function RegisterPage() {
       return;
     }
 
-    await signIn("credentials", { email, password, redirect: false });
-    router.push("/dashboard");
+    // Account created — now sign in and hard-redirect so the server sees the cookie
+    const signInResult = await signIn("credentials", { email, password, redirect: false });
+    if (signInResult?.error) {
+      // Account exists but auto-login failed — send to login page
+      window.location.href = "/login";
+    } else {
+      window.location.href = "/dashboard";
+    }
   }
 
   return (

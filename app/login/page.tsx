@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { status } = useSession();
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (status === "authenticated") window.location.href = "/dashboard";
+  }, [status]);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,12 +20,12 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     const result = await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
     if (result?.error) {
+      setLoading(false);
       setError("Email sau parolă incorectă");
     } else {
-      router.push("/dashboard");
-      router.refresh();
+      // Hard redirect — ensures the server sees the new session cookie
+      window.location.href = "/dashboard";
     }
   }
 
