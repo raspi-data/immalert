@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getBilanturiIstorice } from "@/lib/anaf";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -19,7 +20,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!company) return NextResponse.json({ error: "Firma nu a fost găsită" }, { status: 404 });
 
-  return NextResponse.json(company);
+  // Fetch last 5 years of bilant from ANAF (best-effort)
+  let bilant = null;
+  try {
+    bilant = await getBilanturiIstorice(parseInt(company.cui, 10), 5);
+  } catch {
+    // Non-critical — bilant data is informational only
+  }
+
+  return NextResponse.json({ ...company, bilant });
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

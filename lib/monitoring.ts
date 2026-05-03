@@ -1,156 +1,99 @@
 import { prisma } from "./prisma";
-import { fetchFirmeByCodes } from "./firmeapi";
-import {
-  sendAlertEmail,
-  sendUrgentAlertEmail,
-  sendTrialExpiryReminder,
-} from "./resend";
+import { fetchFirmeByCodes, detectChanges, normalizeLegacyStoredState, type ChangePriority } from "./anaf";
+import { sendAlertEmail, sendUrgentAlertEmail, sendTrialExpiryReminder } from "./resend";
 
-type JsonObject = Record<string, unknown>;
-
-type Priority = "URGENT" | "IMPORTANT" | "INFO";
-
-const URGENT_FIELDS = ["inactiv", "insolventa"] as const;
-const IMPORTANT_FIELDS = ["tva", "administrator"] as const;
-const INFO_FIELDS = ["adresa", "cod_caen", "stare"] as const;
-const ALL_MONITORED = [...URGENT_FIELDS, ...IMPORTANT_FIELDS, ...INFO_FIELDS];
-
-function diffObjects(
-  prev: JsonObject,
-  curr: JsonObject
-): { field: string; oldValue: string; newValue: string; priority: Priority }[] {
-  const changes: { field: string; oldValue: string; newValue: string; priority: Priority }[] = [];
-  for (const field of ALL_MONITORED) {
-    const oldVal = String(prev[field] ?? "");
-    const newVal = String(curr[field] ?? "");
-    if (oldVal !== newVal) {
-      const priority: Priority = (URGENT_FIELDS as readonly string[]).includes(field)
-        ? "URGENT"
-        : (IMPORTANT_FIELDS as readonly string[]).includes(field)
-        ? "IMPORTANT"
-        : "INFO";
-      changes.push({ field, oldValue: oldVal, newValue: newVal, priority });
-    }
-  }
-  return changes;
-}
-
-function topPriority(changes: { priority: Priority }[]): Priority {
-  if (changes.some((c) => c.priority === "URGENT")) return "URGENT";
+function topPriority(changes: { priority: ChangePriority }[]): ChangePriority {
+  if (changes.some((c) => c.priority === "CRITIC")) return "CRITIC";
   if (changes.some((c) => c.priority === "IMPORTANT")) return "IMPORTANT";
   return "INFO";
-}
-
-// Maps legacy ANAF field names to FirmeAPI field names so the first cron
-// run after migration doesn't generate false-positive alerts.
-function migrateAnafToFirma(data: JsonObject): JsonObject {
-  if (!("scpTVA" in data)) return data;
-  return {
-    cui: data.cui,
-    denumire: data.denumire,
-    adresa: data.adresa,
-    stare: data.stare_inregistrare ?? "",
-    tva: data.scpTVA ?? false,
-    cod_caen: "",
-    denumire_caen: "",
-    administrator: "",
-    inactiv: data.statusInactivi ?? false,
-    insolventa: false,
-  };
 }
 
 async function checkTrialExpiry() {
   const twelveDaysAgo = new Date();
   twelveDaysAgo.setDate(twelveDaysAgo.getDate() - 12);
-
   const thirteenDaysAgo = new Date();
   thirteenDaysAgo.setDate(thirteenDaysAgo.getDate() - 13);
 
-  const expiringUsers = await prisma.user.findMany({
-    where: {
-      subscriptionStatus: "trial",
-      trialStart: { gte: thirteenDaysAgo, lte: twelveDaysAgo },
-    },
+  const expiring = await prisma.user.findMany({
+    where: { subscriptionStatus: "trial", trialStart: { gte: thirteenDaysAgo, lte: twelveDaysAgo } },
   });
-
-  for (const user of expiringUsers) {
+  for (const user of expiring) {
     await sendTrialExpiryReminder(user.email, user.name || undefined);
   }
-
-  console.log(`[cron] Trial expiry: notified ${expiringUsers.length} users`);
+  console.log(`[cron] Trial expiry: notified ${expiring.length} users`);
 }
 
 export async function runDailyMonitoring() {
   console.log("[cron] ===== Daily monitoring started =====");
 
   const companies = await prisma.company.findMany({ include: { user: true } });
+
   if (companies.length === 0) {
-    console.log("[cron] No companies to check.");
+    console.log("[cron] No companies.");
     await checkTrialExpiry();
     return;
   }
 
+  // Batch ANAF request — up to 100 CUIs per HTTP call
   const cuis = [...new Set(companies.map((c) => c.cui))];
   const firmaMap = await fetchFirmeByCodes(cuis);
 
   for (const company of companies) {
     try {
       const newData = firmaMap.get(company.cui);
-      if (!newData) continue;
+      if (!newData) {
+        console.warn(`[cron] No ANAF data for CUI ${company.cui} — skipping`);
+        continue;
+      }
 
-      const prevRaw = (company.dateAnaf as JsonObject) || {};
-      const prevData = migrateAnafToFirma(prevRaw);
-      const newDataObj = newData as unknown as JsonObject;
+      const prevRaw = normalizeLegacyStoredState((company.dateAnaf as Record<string, unknown>) ?? {});
+      const changes = detectChanges(prevRaw, newData);
 
-      const changes = diffObjects(prevData, newDataObj);
       if (changes.length > 0) {
-        const alertType = topPriority(changes);
+        const priority = topPriority(changes);
 
         await prisma.alert.create({
           data: {
             companyId: company.id,
             userId: company.userId,
-            tipAlerta: alertType,
-            detalii: { changes, source: "FirmeAPI" },
+            tipAlerta: priority,
+            detalii: { changes, source: "ANAF-v9" } as object,
           },
         });
 
-        if (alertType === "URGENT") {
-          const urgentReasons = changes
-            .filter((c) => c.priority === "URGENT")
+        const criticChanges = changes.filter((c) => c.priority === "CRITIC");
+        const otherChanges = changes.filter((c) => c.priority !== "CRITIC");
+
+        if (criticChanges.length > 0) {
+          const reasons = criticChanges
             .map((c) => {
-              if (c.field === "inactiv" && c.newValue === "true") return "Firma declarată inactivă";
-              if (c.field === "insolventa" && c.newValue === "true") return "Firma în insolvență";
+              if (c.field === "inactiv" && c.newValue === "true") return "Firma a fost declarată INACTIVĂ fiscal";
+              if (c.field === "data_radiere" && c.newValue) return `Firma a fost RADIATĂ la ${c.newValue}`;
               return `${c.field}: ${c.oldValue} → ${c.newValue}`;
             })
             .join("; ");
+          await sendUrgentAlertEmail(company.user.email, company.nume, "Alertă Critică ANAF", reasons);
+        }
 
-          await sendUrgentAlertEmail(
-            company.user.email,
-            company.nume,
-            "Alertă urgentă — firmă în risc",
-            urgentReasons
-          );
-        } else {
+        if (otherChanges.length > 0) {
           await sendAlertEmail(
             company.user.email,
             company.nume,
-            changes,
+            otherChanges,
             company.id,
-            alertType
+            priority === "IMPORTANT" ? "IMPORTANT" : "INFO"
           );
         }
+
+        console.log(`[cron] ${company.cui} (${company.nume}): ${changes.length} changes, priority=${priority}`);
       }
 
       await prisma.company.update({
         where: { id: company.id },
-        data: {
-          dateAnaf: JSON.parse(JSON.stringify(newDataObj)),
-          lastChecked: new Date(),
-        },
+        data: { dateAnaf: JSON.parse(JSON.stringify(newData)), lastChecked: new Date() },
       });
     } catch (err) {
-      console.error(`[cron] Error processing company ${company.cui}:`, err);
+      console.error(`[cron] Error for CUI ${company.cui}:`, err);
     }
   }
 

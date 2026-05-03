@@ -1,6 +1,6 @@
 "use client";
 
-import type { FirmaData } from "@/lib/firmeapi";
+import type { FirmaData } from "@/lib/anaf";
 
 interface Props {
   company: FirmaData;
@@ -8,7 +8,7 @@ interface Props {
   onReset: () => void;
 }
 
-function StatusBadge({ ok, labelOk, labelNot }: { ok: boolean; labelOk: string; labelNot: string }) {
+function Badge({ ok, labelOk, labelNot }: { ok: boolean; labelOk: string; labelNot: string }) {
   return ok ? (
     <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full text-xs font-semibold">
       <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check_circle</span>
@@ -22,7 +22,8 @@ function StatusBadge({ ok, labelOk, labelNot }: { ok: boolean; labelOk: string; 
   );
 }
 
-function Row({ label, value, icon }: { label: string; value: React.ReactNode; icon: string }) {
+function Row({ icon, label, value }: { icon: string; label: string; value: React.ReactNode }) {
+  if (!value || value === "") return null;
   return (
     <tr className="border-b border-surface-variant last:border-0 hover:bg-surface-container/40 transition-colors">
       <td className="py-3.5 px-5 w-[45%]">
@@ -32,13 +33,13 @@ function Row({ label, value, icon }: { label: string; value: React.ReactNode; ic
         </div>
       </td>
       <td className="py-3.5 px-5">
-        <span className="text-sm text-on-surface font-semibold">{value || "—"}</span>
+        <span className="text-sm text-on-surface font-semibold">{value}</span>
       </td>
     </tr>
   );
 }
 
-function SectionHeader({ title, icon }: { title: string; icon: string }) {
+function Section({ title, icon }: { title: string; icon: string }) {
   return (
     <tr className="bg-surface-container border-b border-surface-variant">
       <td colSpan={2} className="px-5 py-2.5">
@@ -51,14 +52,7 @@ function SectionHeader({ title, icon }: { title: string; icon: string }) {
   );
 }
 
-function formatRON(value: number): string {
-  if (value === 0) return "—";
-  return new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON", maximumFractionDigits: 0 }).format(value);
-}
-
 export default function CompanyResultTable({ company, email, onReset }: Props) {
-  const latestBilant = company.bilant?.sort((a, b) => b.an - a.an)[0];
-
   return (
     <section className="max-w-7xl mx-auto px-6 pb-20">
       <div className="bg-white border border-surface-variant rounded-3xl overflow-hidden shadow-sm">
@@ -71,7 +65,11 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
             </div>
             <div>
               <h2 className="font-display font-bold text-on-surface text-lg leading-tight">{company.denumire}</h2>
-              <p className="text-sm text-outline mt-0.5">CUI {company.cui} &nbsp;·&nbsp; Interogat pe {new Date().toLocaleDateString("ro-RO")}</p>
+              <p className="text-sm text-outline mt-0.5">
+                CUI {company.cui}
+                {company.nr_reg_com && <> &nbsp;·&nbsp; {company.nr_reg_com}</>}
+                &nbsp;·&nbsp; Interogat pe {new Date().toLocaleDateString("ro-RO")}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -84,20 +82,26 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
               className="flex items-center gap-1.5 text-xs font-semibold text-primary-container hover:bg-surface-container px-3 py-1.5 rounded-full border border-primary-container/30 transition-colors"
             >
               <span className="material-symbols-outlined" style={{ fontSize: 14 }}>refresh</span>
-              Alta firma
+              Altă firmă
             </button>
           </div>
         </div>
 
         {/* Quick status pills */}
         <div className="flex flex-wrap gap-3 px-6 py-4 border-b border-surface-variant bg-white">
-          <StatusBadge ok={company.tva} labelOk="Platitor TVA" labelNot="Neplatitor TVA" />
-          <StatusBadge ok={!company.inactiv} labelOk="Activa fiscal" labelNot="Inactiva fiscal" />
-          <StatusBadge ok={!company.insolventa} labelOk="Fara insolventa" labelNot="In insolventa" />
-          {company.stare && (
-            <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold">
-              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-              {company.stare}
+          <Badge ok={company.tva} labelOk="Plătitor TVA" labelNot="Neplătitor TVA" />
+          <Badge ok={!company.inactiv} labelOk="Activă fiscal" labelNot="INACTIVĂ fiscal" />
+          <Badge ok={company.e_factura} labelOk="e-Factura activ" labelNot="Fără e-Factura" />
+          {company.tva_incasare && (
+            <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-xs font-semibold">
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>payments</span>
+              TVA la încasare
+            </span>
+          )}
+          {company.data_radiere && (
+            <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-semibold">
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>warning</span>
+              RADIATĂ {company.data_radiere}
             </span>
           )}
         </div>
@@ -107,80 +111,65 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
           <table className="w-full border-collapse">
             <tbody>
 
-              <SectionHeader title="Date generale" icon="business" />
+              <Section title="Date generale" icon="business" />
               <Row icon="badge" label="Denumire" value={company.denumire} />
               <Row icon="tag" label="CUI" value={company.cui} />
-              {company.nr_reg_com && (
-                <Row icon="article" label="Nr. Reg. Com." value={company.nr_reg_com} />
-              )}
-              <Row icon="location_on" label="Adresa" value={company.adresa} />
-              <Row icon="info" label="Stare firma" value={company.stare} />
-              {company.administrator && (
-                <Row icon="person" label="Administrator" value={company.administrator} />
-              )}
-              {company.cod_caen && (
-                <Row
-                  icon="category"
-                  label="Cod CAEN"
-                  value={company.denumire_caen ? `${company.cod_caen} — ${company.denumire_caen}` : company.cod_caen}
-                />
-              )}
-              {company.capital_social !== undefined && company.capital_social > 0 && (
-                <Row icon="payments" label="Capital social" value={formatRON(company.capital_social)} />
-              )}
+              <Row icon="article" label="Nr. Reg. Com." value={company.nr_reg_com} />
+              <Row icon="location_on" label="Adresă" value={company.adresa} />
+              <Row icon="map" label="Județ" value={company.judet} />
+              <Row icon="info" label="Stare firmă" value={company.stare} />
+              <Row icon="category" label="Cod CAEN" value={company.cod_caen} />
+              <Row icon="calendar_today" label="Data înregistrare" value={company.data_inregistrare} />
+              <Row icon="phone" label="Telefon" value={company.telefon} />
+              <Row icon="gavel" label="Formă juridică" value={company.forma_juridica} />
 
-              <SectionHeader title="Status fiscal" icon="receipt_long" />
-              <Row
-                icon="receipt_long"
-                label="Platitor TVA"
-                value={<StatusBadge ok={company.tva} labelOk="Da" labelNot="Nu" />}
-              />
-              <Row
-                icon="block"
-                label="Inactivitate fiscala"
-                value={<StatusBadge ok={!company.inactiv} labelOk="Activa" labelNot="Inactiva" />}
-              />
-              <Row
-                icon="balance"
-                label="Insolventa"
-                value={<StatusBadge ok={!company.insolventa} labelOk="Nu" labelNot="Da — in insolventa" />}
-              />
+              <Section title="Status fiscal" icon="receipt_long" />
+              <Row icon="receipt_long" label="Plătitor TVA"
+                value={<Badge ok={company.tva} labelOk="Da" labelNot="Nu" />} />
+              {company.tva && company.tva_data_inceput && (
+                <Row icon="event" label="TVA din" value={company.tva_data_inceput} />
+              )}
+              <Row icon="block" label="Inactivitate fiscală"
+                value={<Badge ok={!company.inactiv} labelOk="Activă" labelNot="INACTIVĂ" />} />
+              {company.inactiv && company.data_inactivare && (
+                <Row icon="event" label="Inactivă din" value={company.data_inactivare} />
+              )}
+              <Row icon="payments" label="TVA la încasare"
+                value={<Badge ok={!company.tva_incasare} labelOk="Nu" labelNot="Da — aplică TVA la încasare" />} />
+              <Row icon="swap_horiz" label="Split TVA"
+                value={<Badge ok={!company.split_tva} labelOk="Nu" labelNot="Da — split TVA activ" />} />
 
-              {latestBilant && (
-                <>
-                  <SectionHeader title={`Date financiare ${latestBilant.an}`} icon="query_stats" />
-                  {latestBilant.cifra_afaceri > 0 && (
-                    <Row icon="trending_up" label="Cifra de afaceri" value={formatRON(latestBilant.cifra_afaceri)} />
-                  )}
-                  {latestBilant.profit !== 0 && (
-                    <Row
-                      icon="account_balance"
-                      label="Profit net"
-                      value={<span className={latestBilant.profit >= 0 ? "text-green-700" : "text-red-700"}>{formatRON(latestBilant.profit)}</span>}
-                    />
-                  )}
-                  {latestBilant.angajati > 0 && (
-                    <Row icon="people" label="Angajati" value={String(latestBilant.angajati)} />
-                  )}
-                </>
+              <Section title="RO e-Factura" icon="description" />
+              <Row icon="description" label="Înregistrat e-Factura"
+                value={<Badge ok={company.e_factura} labelOk="Da" labelNot="Nu" />} />
+              {company.e_factura && company.e_factura_data_inregistrare && (
+                <Row icon="event" label="Înregistrat din" value={company.e_factura_data_inregistrare} />
               )}
 
             </tbody>
           </table>
         </div>
 
+        {/* Source note */}
+        <div className="px-6 py-3 border-t border-surface-variant bg-surface-container/20">
+          <p className="text-xs text-outline flex items-center gap-1.5">
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
+            Date oficiale din ANAF — Agenția Națională de Administrare Fiscală. Sursa: ANAF v9/tva
+          </p>
+        </div>
+
         {/* CTA footer */}
         <div className="px-6 py-5 bg-surface-container/30 border-t border-surface-variant flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-on-surface text-sm">Vrei sa monitorizezi aceasta firma continuu?</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">Primesti alerte automate pe email la orice schimbare.</p>
+            <p className="font-semibold text-on-surface text-sm">Vrei să monitorizezi această firmă continuu?</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">Primești alerte automate pe email la orice schimbare ANAF.</p>
           </div>
           <a
             href="/register"
             className="flex-shrink-0 bg-primary-container text-white px-6 py-2.5 rounded-xl font-display font-semibold text-sm hover:opacity-90 active:scale-95 transition-all flex items-center gap-2"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>notifications_active</span>
-            Incepe Trial Gratuit 14 Zile
+            Începe Trial Gratuit 14 Zile
           </a>
         </div>
       </div>

@@ -11,9 +11,10 @@ interface Company {
   dateAnaf: {
     tva?: boolean;
     inactiv?: boolean;
-    insolventa?: boolean;
+    e_factura?: boolean;
     adresa?: string;
-    administrator?: string;
+    stare?: string;
+    data_radiere?: string;
   } | null;
   alerts: { id: string }[];
 }
@@ -186,7 +187,8 @@ export default function DashboardPage() {
                       <p className="text-on-surface-variant text-xs mt-0.5">
                         CUI: {company.cui}
                         {company.dateAnaf?.tva && " • TVA activ"}
-                        {company.dateAnaf?.insolventa && " • Insolvență"}
+                        {company.dateAnaf?.e_factura && " • e-Factura"}
+                        {company.dateAnaf?.data_radiere && " • RADIATĂ"}
                       </p>
                     </div>
                   </div>

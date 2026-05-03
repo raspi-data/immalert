@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import type { FirmaData } from "./anaf";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -83,11 +84,13 @@ export async function sendAlertEmail(
   const FIELD_LABELS: Record<string, string> = {
     tva: "TVA",
     inactiv: "Status inactiv",
-    insolventa: "Insolvență",
+    data_radiere: "Radiere firmă",
     adresa: "Adresă",
     stare: "Stare firmă",
     cod_caen: "Cod CAEN",
-    administrator: "Administrator",
+    e_factura: "RO e-Factura",
+    tva_incasare: "TVA la încasare",
+    split_tva: "Split TVA",
   };
 
   const changesHtml = changes
@@ -163,36 +166,26 @@ export async function sendUrgentAlertEmail(
   });
 }
 
-export async function sendQuickReportEmail(
-  email: string,
-  company: {
-    cui: string;
-    denumire: string;
-    adresa: string;
-    tva: boolean;
-    inactiv: boolean;
-    insolventa: boolean;
-    stare?: string;
-    administrator?: string;
-    cod_caen?: string;
-  }
-) {
+export async function sendQuickReportEmail(email: string, company: FirmaData) {
   const resend = getResend();
 
-  const statusBadge = (ok: boolean, labelOk: string, labelNot: string) =>
+  const badge = (ok: boolean, yes: string, no: string) =>
     ok
-      ? `<span style="background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelOk}</span>`
-      : `<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${labelNot}</span>`;
+      ? `<span style="background:#dcfce7;color:#16a34a;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${yes}</span>`
+      : `<span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600;">${no}</span>`;
 
   const rows = [
     { label: "Denumire", value: company.denumire },
     { label: "CUI", value: company.cui },
-    { label: "Adresa", value: company.adresa || "—" },
+    { label: "Nr. Reg. Com.", value: company.nr_reg_com || "—" },
+    { label: "Adresă", value: company.adresa || "—" },
     { label: "Stare firmă", value: company.stare || "—" },
-    { label: "TVA", value: statusBadge(company.tva, "Platitor TVA", "Neplatitor TVA") },
-    { label: "Status", value: statusBadge(!company.inactiv, "Activa", "Inactiva") },
-    { label: "Insolvență", value: statusBadge(!company.insolventa, "Nu", "Da") },
-    ...(company.administrator ? [{ label: "Administrator", value: company.administrator }] : []),
+    { label: "Data înregistrare", value: company.data_inregistrare || "—" },
+    { label: "TVA", value: badge(company.tva, "Plătitor TVA", "Neplătitor TVA") },
+    { label: "Status", value: badge(!company.inactiv, "Activă", "INACTIVĂ fiscal") },
+    { label: "e-Factura", value: badge(company.e_factura, "Înregistrat", "Neînregistrat") },
+    ...(company.tva_incasare ? [{ label: "TVA la încasare", value: badge(true, "Activ", "Inactiv") }] : []),
+    ...(company.telefon ? [{ label: "Telefon", value: company.telefon }] : []),
     ...(company.cod_caen ? [{ label: "Cod CAEN", value: company.cod_caen }] : []),
   ];
 
