@@ -7,13 +7,14 @@ import Link from "next/link";
 export default function LoginPage() {
   const { status } = useSession();
   const [email, setEmail] = useState("");
-
-  useEffect(() => {
-    if (status === "authenticated") window.location.href = "/dashboard";
-  }, [status]);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Already authenticated — skip login form
+  useEffect(() => {
+    if (status === "authenticated") window.location.href = "/dashboard";
+  }, [status]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,9 +25,16 @@ export default function LoginPage() {
       setLoading(false);
       setError("Email sau parolă incorectă");
     } else {
-      // Hard redirect — ensures the server sees the new session cookie
       window.location.href = "/dashboard";
     }
+  }
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary-container border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -51,9 +59,9 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
-                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="email@exemplu.ro"
                 required
+                autoComplete="email"
               />
             </div>
             <div>
@@ -63,9 +71,9 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full border border-outline-variant rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder:text-outline"
-                style={{ "--tw-ring-color": "#1abc9c" } as React.CSSProperties}
                 placeholder="••••••••"
                 required
+                autoComplete="current-password"
               />
             </div>
 
