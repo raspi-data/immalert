@@ -11,7 +11,8 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return NextResponse.json({ error: "Utilizatorul nu a fost găsit" }, { status: 404 });
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);

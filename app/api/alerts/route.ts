@@ -4,10 +4,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   const alerts = await prisma.alert.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     include: {
       company: { select: { id: true, cui: true, nume: true } },
     },

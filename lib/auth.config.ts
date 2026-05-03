@@ -28,13 +28,15 @@ const authConfig: NextAuthConfig = {
       return token;
     },
     session({ session, token }) {
-      if (token) {
-        const u = session.user as unknown as Record<string, unknown>;
-        u.id = token.id;
-        u.role = token.role;
-        u.subscriptionStatus = token.subscriptionStatus;
-      }
-      return session;
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: (token.id ?? token.sub) as string | undefined,
+          role: token.role as string | undefined,
+          subscriptionStatus: token.subscriptionStatus as string | undefined,
+        },
+      };
     },
   },
   providers: [],

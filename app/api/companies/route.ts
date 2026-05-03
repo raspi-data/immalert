@@ -10,25 +10,32 @@ const addSchema = z.object({
 
 export async function GET() {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
-  const companies = await prisma.company.findMany({
-    where: { userId: session.user.id },
-    include: {
-      alerts: {
-        where: { citit: false },
-        select: { id: true },
+  try {
+    const companies = await prisma.company.findMany({
+      where: { userId },
+      include: {
+        alerts: {
+          where: { citit: false },
+          select: { id: true },
+        },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json(companies);
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(companies);
+  } catch (err) {
+    console.error("Get companies error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   try {
     const body = await req.json();
@@ -40,7 +47,7 @@ export async function POST(req: NextRequest) {
     const { cui } = parsed.data;
 
     const existing = await prisma.company.findUnique({
-      where: { cui_userId: { cui, userId: session.user.id } },
+      where: { cui_userId: { cui, userId } },
     });
     if (existing) {
       return NextResponse.json({ error: "Firma este deja monitorizată" }, { status: 409 });
@@ -55,7 +62,7 @@ export async function POST(req: NextRequest) {
       data: {
         cui,
         nume: firmaData.denumire,
-        userId: session.user.id,
+        userId,
         dateAnaf: JSON.parse(JSON.stringify(firmaData)),
         lastChecked: new Date(),
       },
@@ -64,6 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(company, { status: 201 });
   } catch (err) {
     console.error("Add company error:", err);
-    return NextResponse.json({ error: "Eroare internă" }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
   }
 }

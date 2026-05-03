@@ -5,11 +5,12 @@ import { getBilanturiIstorice } from "@/lib/anaf";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   const { id } = await params;
   const company = await prisma.company.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
     include: {
       alerts: {
         orderBy: { createdAt: "desc" },
@@ -20,7 +21,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!company) return NextResponse.json({ error: "Firma nu a fost găsită" }, { status: 404 });
 
-  // Fetch last 5 years of bilant from ANAF (best-effort)
   let bilant = null;
   try {
     bilant = await getBilanturiIstorice(parseInt(company.cui, 10), 5);
@@ -33,12 +33,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   const { id } = await params;
-  const company = await prisma.company.findFirst({
-    where: { id, userId: session.user.id },
-  });
+  const company = await prisma.company.findFirst({ where: { id, userId } });
   if (!company) return NextResponse.json({ error: "Firma nu a fost găsită" }, { status: 404 });
 
   await prisma.company.delete({ where: { id } });

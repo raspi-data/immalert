@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   const { plan } = await req.json();
   if (!plan || !PLANS[plan as keyof typeof PLANS]) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   const selectedPlan = PLANS[plan as keyof typeof PLANS];
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return NextResponse.json({ error: "Utilizatorul nu a fost găsit" }, { status: 404 });
 
   let customerId = user.stripeCustomerId;
