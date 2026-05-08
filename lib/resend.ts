@@ -117,6 +117,30 @@ export async function sendCompanyAddedEmail(email: string, companyName: string, 
   });
 }
 
+export async function sendPasswordChangedEmail(email: string) {
+  const resend = getResend();
+  const body = `
+    <h2 style="color:#111827;margin:0 0 12px;font-size:20px;">Parola ta a fost schimbată</h2>
+    <p style="color:#374151;margin:0 0 16px;font-size:14px;line-height:1.6;">
+      Parola contului tău ImmAlert asociat adresei <strong>${email}</strong> a fost modificată cu succes pe <strong>${new Date().toLocaleDateString("ro-RO")}</strong>.
+    </p>
+    <div style="padding:16px 20px;background:#fef3c7;border-radius:8px;border-left:4px solid #d97706;margin-bottom:24px;">
+      <p style="margin:0;color:#111827;font-size:14px;line-height:1.6;">
+        Dacă <strong>nu tu</strong> ai făcut această modificare, contactează-ne imediat la <a href="mailto:contact@immalert.ro" style="color:#16a34a;">contact@immalert.ro</a>.
+      </p>
+    </div>
+    <a href="${APP_URL}/dashboard" style="display:inline-block;background:#16a34a;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">
+      Accesează contul →
+    </a>
+  `;
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: "Parola ta ImmAlert a fost schimbată",
+    html: emailShell("Securitate cont", body),
+  });
+}
+
 export async function sendAlertEmail(
   email: string,
   companyName: string,

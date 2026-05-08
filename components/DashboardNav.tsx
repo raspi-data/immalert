@@ -14,7 +14,6 @@ export function DashboardNav({ user }: { user: NavUser }) {
 
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-    { href: "/dashboard/alerts", label: "Alerte", icon: "notifications" },
     { href: "/dashboard/settings", label: "Setări", icon: "settings" },
     ...(user.role === "admin" ? [{ href: "/admin", label: "Admin", icon: "admin_panel_settings" }] : []),
   ];
