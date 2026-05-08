@@ -3,7 +3,6 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { z } from "zod";
-import authConfig from "./auth.config";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -11,7 +10,9 @@ const loginSchema = z.object({
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
+  session: { strategy: "jwt" },
+  pages: { signIn: "/login", error: "/login" },
   providers: [
     Credentials({
       async authorize(credentials) {
@@ -25,12 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],

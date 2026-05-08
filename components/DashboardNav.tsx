@@ -47,7 +47,7 @@ export function DashboardNav({ user }: { user: NavUser }) {
         <div className="flex items-center gap-3">
           <span className="text-sm text-outline hidden sm:block">{user.email}</span>
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({ callbackUrl: "/login", redirect: true })}
             className="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>

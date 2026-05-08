@@ -23,7 +23,6 @@ export default function LandingPage() {
 
   function handleResult(company: FirmaData, email: string) {
     setResult({ company, email });
-    // Scroll to result after render
     setTimeout(() => {
       resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
@@ -44,7 +43,6 @@ export default function LandingPage() {
             <div className="hidden md:flex gap-8 items-center">
               <a href="#cum-functioneaza" className="text-sm font-semibold text-primary-container border-b-2 border-primary-container pb-1 font-display">Platforma</a>
               <a href="#ce-monitorizezi" className="text-sm font-medium text-on-surface-variant hover:text-primary-container transition-colors font-display">Soluții</a>
-              <a href="#pret" className="text-sm font-medium text-on-surface-variant hover:text-primary-container transition-colors font-display">Prețuri</a>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -55,7 +53,7 @@ export default function LandingPage() {
               href="/register"
               className="bg-primary-container text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 active:scale-95 transition-all font-display"
             >
-              Începe Trial Gratuit
+              Începe Gratuit
             </Link>
           </div>
         </div>
@@ -69,7 +67,7 @@ export default function LandingPage() {
           <div className="flex flex-col gap-8 z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container w-fit text-xs font-semibold tracking-wide uppercase">
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-              NOU: Integrare e-Factura automată
+              100% Gratuit — Fără card
             </div>
 
             <h1 className="font-display font-bold text-on-surface leading-tight" style={{ fontSize: 40, lineHeight: "48px", letterSpacing: "-0.02em" }}>
@@ -88,30 +86,23 @@ export default function LandingPage() {
                 className="bg-primary-container text-white px-8 py-4 rounded-xl font-display font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95"
                 style={{ fontSize: 18 }}
               >
-                Începe Trial Gratuit 14 Zile
+                Creează cont gratuit
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
-              <a
-                href="#pret"
-                className="bg-white border border-outline-variant text-on-surface-variant px-8 py-4 rounded-xl font-display font-semibold hover:bg-surface-container-low transition-all text-center"
-                style={{ fontSize: 18 }}
-              >
-                Vezi prețurile
-              </a>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-outline">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
+                100% Gratuit
+              </div>
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
                 Fără card
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
-                Fără obligații
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
-                Anulezi oricând
+                Firme nelimitate
               </div>
             </div>
           </div>
@@ -168,14 +159,13 @@ export default function LandingPage() {
           <p className="text-on-surface-variant">Setezi totul în mai puțin de un minut.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-12 relative">
-          {/* Connector line */}
           <div className="hidden md:block absolute top-8 left-1/4 right-1/4 h-px bg-surface-variant z-0" />
 
           {[
             {
               icon: "person_add",
               title: "Creezi contul gratuit",
-              desc: "14 zile trial inclus, înscriere în 30 de secunde fără card.",
+              desc: "Înregistrare în 30 de secunde, fără card, fără obligații.",
               variant: "filled",
             },
             {
@@ -239,64 +229,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Pricing ── */}
-      <section id="pret" className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display font-semibold text-on-surface mb-4" style={{ fontSize: 32, lineHeight: "40px" }}>Prețuri clare, fără surprize</h2>
-            <p className="text-on-surface-variant">Firme nelimitate incluse în ambele planuri.</p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {/* Monthly */}
-            <div className="border border-surface-variant rounded-2xl p-8 bg-white">
-              <h3 className="font-display font-bold text-on-surface text-lg mb-2">Lunar</h3>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>29</span>
-                <span className="text-on-surface-variant text-sm">RON/lună</span>
-              </div>
-              <p className="text-on-surface-variant text-sm mb-6">Facturare lunară</p>
-              <ul className="space-y-2.5 mb-8 text-sm text-on-surface-variant">
-                {["Firme nelimitate", "Alerte email instant", "Toate sursele de date", "Anulezi oricând"].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 18 }}>check_circle</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="block w-full text-center border border-outline-variant text-on-surface-variant py-3 rounded-xl font-display font-semibold hover:bg-surface-container-low transition-colors"
-              >
-                Incepe gratuit
-              </Link>
-            </div>
-            {/* Annual */}
-            <div className="border-2 border-primary-container rounded-2xl p-8 bg-white relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-secondary-container text-on-secondary-container text-xs font-bold px-2.5 py-1 rounded-full">
-                Economisesti 20%
-              </div>
-              <h3 className="font-display font-bold text-on-surface text-lg mb-2">Anual</h3>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-display font-bold text-on-surface" style={{ fontSize: 36 }}>20</span>
-                <span className="text-on-surface-variant text-sm">RON/lună</span>
-              </div>
-              <p className="text-on-surface-variant text-sm mb-6">Facturat anual · 240 RON/an</p>
-              <ul className="space-y-2.5 mb-8 text-sm text-on-surface-variant">
-                {["Firme nelimitate", "Alerte email instant", "Toate sursele de date", "Suport prioritar"].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 18 }}>check_circle</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="block w-full text-center bg-primary-container text-white py-3 rounded-xl font-display font-semibold hover:opacity-90 transition-all active:scale-95"
-              >
-                Incepe gratuit
-              </Link>
-            </div>
-          </div>
+      {/* ── CTA ── */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="font-display font-semibold text-on-surface mb-4" style={{ fontSize: 32, lineHeight: "40px" }}>
+            Începe monitorizarea acum
+          </h2>
+          <p className="text-on-surface-variant mb-8">
+            100% gratuit. Fără card. Firme nelimitate. Alerte email instant.
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 bg-primary-container text-white px-8 py-4 rounded-xl font-display font-semibold hover:shadow-lg transition-all active:scale-95"
+            style={{ fontSize: 18 }}
+          >
+            Creează cont gratuit
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </Link>
         </div>
       </section>
 
@@ -308,7 +257,7 @@ export default function LandingPage() {
             <p className="text-sm text-outline">© 2024 ImmAlert. Toate drepturile rezervate.</p>
           </div>
           <div className="flex flex-wrap justify-center gap-8">
-            {["Termeni și Condiții", "Confidențialitate", "Contact", "Blog", "API Docs"].map((link) => (
+            {["Termeni și Condiții", "Confidențialitate", "Contact"].map((link) => (
               <a key={link} href="#" className="text-sm text-outline hover:text-primary-container underline decoration-2 underline-offset-4 transition-colors">
                 {link}
               </a>

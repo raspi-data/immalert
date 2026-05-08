@@ -45,7 +45,7 @@ export default function AlertsPage() {
   useEffect(() => {
     fetch("/api/alerts")
       .then((r) => r.json())
-      .then((data) => { setAlerts(data); setLoading(false); });
+      .then((data) => { setAlerts(Array.isArray(data) ? data : []); setLoading(false); });
   }, []);
 
   async function markRead(id: string) {

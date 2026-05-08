@@ -30,7 +30,8 @@ export default function DashboardPage() {
 
   async function loadCompanies() {
     const res = await fetch("/api/companies");
-    if (res.ok) setCompanies(await res.json());
+    const data = await res.json();
+    if (res.ok && Array.isArray(data)) setCompanies(data);
     setLoading(false);
   }
 

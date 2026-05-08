@@ -47,15 +47,15 @@ export default function RegisterPage() {
             ImmAlert
           </Link>
           <h1 className="font-display font-bold text-on-surface mt-4" style={{ fontSize: 24, lineHeight: "32px" }}>
-            14 zile gratuit
+            Creează cont gratuit
           </h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Fără card &bull; Anulezi oricând</p>
+          <p className="text-on-surface-variant mt-1 text-sm">Fără card &bull; 100% gratuit</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-surface-variant p-8">
           {/* Trust badges */}
           <div className="flex items-center justify-center gap-4 mb-6 pb-5 border-b border-surface-container">
-            {["Fără card", "14 zile gratuit", "Anulezi oricând"].map((badge) => (
+            {["Fără card", "100% Gratuit", "Firme nelimitate"].map((badge) => (
               <div key={badge} className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 14 }}>check_circle</span>
                 {badge}

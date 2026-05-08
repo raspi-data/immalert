@@ -6,7 +6,11 @@
       "Bash(npm run *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(rm \"C:\\\\Users\\\\claud\\\\immalert\\\\lib\\\\stripe.ts\")",
+      "Bash(rm \"C:\\\\Users\\\\claud\\\\immalert\\\\app\\\\api\\\\stripe\\\\route.ts\")",
+      "Bash(rm \"C:\\\\Users\\\\claud\\\\immalert\\\\app\\\\api\\\\stripe\\\\webhook\\\\route.ts\")",
+      "Bash(rmdir \"C:\\\\Users\\\\claud\\\\immalert\\\\app\\\\api\\\\stripe\")"
     ]
   }
 }
