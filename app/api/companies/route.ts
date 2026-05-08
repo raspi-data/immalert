@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { fetchFirmaByCode } from "@/lib/firmeapi";
+import { sendCompanyAddedEmail } from "@/lib/resend";
 import { z } from "zod";
 
 const addSchema = z.object({
@@ -63,6 +64,12 @@ export async function POST(req: NextRequest) {
         lastChecked: new Date(),
       },
     });
+
+    try {
+      await sendCompanyAddedEmail(session.email, company.nume, company.cui, company.id);
+    } catch {
+      // Non-critical
+    }
 
     return NextResponse.json(company, { status: 201 });
   } catch (err) {
