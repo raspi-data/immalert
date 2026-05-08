@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export default async function AdminPage() {
-  const session = await auth();
-  if (!session || session.user.role !== "admin") redirect("/dashboard");
+  const session = await getSession();
+  if (!session || session.role !== "admin") redirect("/dashboard");
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

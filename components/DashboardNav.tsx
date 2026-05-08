@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 
 interface NavUser {
   email: string;
@@ -19,6 +18,11 @@ export function DashboardNav({ user }: { user: NavUser }) {
     { href: "/dashboard/settings", label: "Setări", icon: "settings" },
     ...(user.role === "admin" ? [{ href: "/admin", label: "Admin", icon: "admin_panel_settings" }] : []),
   ];
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  }
 
   return (
     <header className="bg-white border-b border-surface-variant sticky top-0 z-40">
@@ -47,7 +51,7 @@ export function DashboardNav({ user }: { user: NavUser }) {
         <div className="flex items-center gap-3">
           <span className="text-sm text-outline hidden sm:block">{user.email}</span>
           <button
-            onClick={() => signOut({ callbackUrl: "/login", redirect: true })}
+            onClick={handleLogout}
             className="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>

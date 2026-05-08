@@ -1,40 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { useState } from "react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Already authenticated — skip login form
-  useEffect(() => {
-    if (status === "authenticated") window.location.href = "/dashboard";
-  }, [status]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await signIn("credentials", { email, password, redirect: false });
-    if (result?.error) {
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error || "Email sau parolă incorectă");
       setLoading(false);
-      setError("Email sau parolă incorectă");
     } else {
       window.location.href = "/dashboard";
     }
-  }
-
-  if (status === "loading" || status === "authenticated") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-container border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
   }
 
   return (

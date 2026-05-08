@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -29,13 +28,17 @@ export default function RegisterPage() {
       return;
     }
 
-    // Account created — now sign in and hard-redirect so the server sees the cookie
-    const signInResult = await signIn("credentials", { email, password, redirect: false });
-    if (signInResult?.error) {
-      // Account exists but auto-login failed — send to login page
-      window.location.href = "/login";
-    } else {
+    // Auto-login after registration
+    const loginRes = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (loginRes.ok) {
       window.location.href = "/dashboard";
+    } else {
+      window.location.href = "/login";
     }
   }
 

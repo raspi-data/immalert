@@ -1,21 +1,15 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/DashboardNav";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  let session;
-  try {
-    session = await auth();
-  } catch {
-    redirect("/login");
-  }
-
+  const session = await getSession();
   if (!session) redirect("/login");
 
   const user = {
-    email: session.user?.email ?? "",
-    name: session.user?.name ?? null,
-    role: (session.user as { role?: string })?.role ?? "user",
+    email: session.email,
+    name: session.name ?? null,
+    role: session.role,
   };
 
   return (

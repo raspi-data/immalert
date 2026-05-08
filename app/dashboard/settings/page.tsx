@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwMsg, setPwMsg] = useState("");
   const [pwError, setPwError] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => { if (data.email) setEmail(data.email); })
+      .catch(() => {});
+  }, []);
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
@@ -42,7 +48,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div>
             <p className="text-xs text-outline font-semibold uppercase tracking-wide mb-1">Email</p>
-            <p className="text-on-surface text-sm">{session?.user.email}</p>
+            <p className="text-on-surface text-sm">{email}</p>
           </div>
           <div>
             <p className="text-xs text-outline font-semibold uppercase tracking-wide mb-1">Acces</p>

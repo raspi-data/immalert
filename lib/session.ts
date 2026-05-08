@@ -1,16 +1,20 @@
-import { auth } from "./auth";
-import { prisma } from "./prisma";
+import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
+import { verifyToken, type JWTPayload } from "./jwt";
 
-export async function getAuthUserId(): Promise<string | null> {
-  const session = await auth();
-  if (!session?.user) return null;
+const COOKIE = "session_token";
 
-  const userId = session.user.id;
-  if (userId) return userId;
+export type { JWTPayload };
 
-  const email = session.user.email;
-  if (!email) return null;
+export async function getSession(): Promise<JWTPayload | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE)?.value;
+  if (!token) return null;
+  return verifyToken(token);
+}
 
-  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  return user?.id ?? null;
+export function getSessionFromRequest(req: NextRequest): JWTPayload | null {
+  const token = req.cookies.get(COOKIE)?.value;
+  if (!token) return null;
+  return verifyToken(token);
 }

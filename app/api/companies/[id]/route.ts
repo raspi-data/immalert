@@ -1,26 +1,15 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionFromRequest } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getBilanturiIstorice } from "@/lib/anaf";
-import type { NextAuthRequest } from "next-auth";
 
-async function resolveUserId(req: NextAuthRequest): Promise<string | null> {
-  const session = req.auth;
-  if (!session?.user) return null;
-  if (session.user.id) return session.user.id;
-  const email = session.user.email;
-  if (!email) return null;
-  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  return user?.id ?? null;
-}
+export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const session = getSessionFromRequest(req);
+  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
-export const GET = auth(async function GET(req: NextAuthRequest, ctx: { params?: Promise<{ id: string }> }) {
-  const userId = await resolveUserId(req);
-  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
-
-  const { id } = await (ctx.params as Promise<{ id: string }>);
+  const { id } = await ctx.params;
   const company = await prisma.company.findFirst({
-    where: { id, userId },
+    where: { id, userId: session.id },
     include: { alerts: { orderBy: { createdAt: "desc" }, take: 50 } },
   });
 
@@ -34,16 +23,16 @@ export const GET = auth(async function GET(req: NextAuthRequest, ctx: { params?:
   }
 
   return NextResponse.json({ ...company, bilant });
-}) as unknown as (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>;
+}
 
-export const DELETE = auth(async function DELETE(req: NextAuthRequest, ctx: { params?: Promise<{ id: string }> }) {
-  const userId = await resolveUserId(req);
-  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const session = getSessionFromRequest(req);
+  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
-  const { id } = await (ctx.params as Promise<{ id: string }>);
-  const company = await prisma.company.findFirst({ where: { id, userId } });
+  const { id } = await ctx.params;
+  const company = await prisma.company.findFirst({ where: { id, userId: session.id } });
   if (!company) return NextResponse.json({ error: "Firma nu a fost găsită" }, { status: 404 });
 
   await prisma.company.delete({ where: { id } });
   return NextResponse.json({ success: true });
-}) as unknown as (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>;
+}

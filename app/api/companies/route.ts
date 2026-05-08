@@ -1,42 +1,20 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionFromRequest } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { fetchFirmaByCode } from "@/lib/firmeapi";
 import { z } from "zod";
-import type { NextAuthRequest } from "next-auth";
 
 const addSchema = z.object({
   cui: z.string().min(2).max(10).regex(/^\d+$/, "CUI trebuie să conțină doar cifre"),
 });
 
-async function resolveUserId(req: NextAuthRequest): Promise<string | null> {
-  const session = req.auth;
-
-  console.log("=== AUTH DEBUG ===");
-  console.log("session:", JSON.stringify(session));
-  console.log("session.user:", JSON.stringify(session?.user));
-  console.log("session.user.id:", session?.user?.id);
-  console.log("session.user.email:", session?.user?.email);
-
-  if (!session?.user) return null;
-
-  if (session.user.id) return session.user.id;
-
-  const email = session.user.email;
-  if (!email) return null;
-
-  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  console.log("Found userId via email:", user?.id);
-  return user?.id ?? null;
-}
-
-export const GET = auth(async function GET(req: NextAuthRequest) {
-  const userId = await resolveUserId(req);
-  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+export async function GET(req: NextRequest) {
+  const session = getSessionFromRequest(req);
+  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   try {
     const companies = await prisma.company.findMany({
-      where: { userId },
+      where: { userId: session.id },
       include: {
         alerts: { where: { citit: false }, select: { id: true } },
       },
@@ -48,11 +26,11 @@ export const GET = auth(async function GET(req: NextAuthRequest) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
   }
-}) as unknown as () => Promise<Response>;
+}
 
-export const POST = auth(async function POST(req: NextAuthRequest) {
-  const userId = await resolveUserId(req);
-  if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
+export async function POST(req: NextRequest) {
+  const session = getSessionFromRequest(req);
+  if (!session) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   try {
     const body = await req.json();
@@ -62,6 +40,7 @@ export const POST = auth(async function POST(req: NextAuthRequest) {
     }
 
     const { cui } = parsed.data;
+    const userId = session.id;
 
     const existing = await prisma.company.findUnique({
       where: { cui_userId: { cui, userId } },
@@ -91,4 +70,4 @@ export const POST = auth(async function POST(req: NextAuthRequest) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
   }
-}) as unknown as (req: Request) => Promise<Response>;
+}
