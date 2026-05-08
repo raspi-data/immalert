@@ -1,14 +1,36 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getAuthUserId } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const session = await auth();
-  const userId = await getAuthUserId();
+  let session;
+  let sessionError: string | null = null;
+
+  try {
+    session = await auth();
+  } catch (err) {
+    sessionError = err instanceof Error ? err.message : String(err);
+  }
+
+  const user = session?.user ?? null;
+  const sessionUserId = (user as { id?: string } | null)?.id ?? null;
+  const sessionUserEmail = user?.email ?? null;
+
+  let dbUserId: string | null = null;
+  if (sessionUserEmail) {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: sessionUserEmail },
+      select: { id: true },
+    });
+    dbUserId = dbUser?.id ?? null;
+  }
+
   return NextResponse.json({
-    session,
-    userId,
-    userEmail: session?.user?.email ?? null,
-    userIdFromSession: (session?.user as { id?: string } | undefined)?.id ?? null,
+    ok: !sessionError && !!session,
+    sessionError,
+    sessionUserId,
+    sessionUserEmail,
+    dbUserId,
+    resolvedUserId: sessionUserId ?? dbUserId,
   });
 }
