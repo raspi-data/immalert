@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm run build"
+buildCommand = "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm run build"
 
 [deploy]
 startCommand = "npm run migrate && npm start"
