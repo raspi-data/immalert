@@ -1,26 +1,11 @@
 import { prisma } from "./prisma";
 import { fetchFirmeByCodes, detectChanges, normalizeLegacyStoredState, type ChangePriority } from "./anaf";
-import { sendAlertEmail, sendUrgentAlertEmail, sendTrialExpiryReminder } from "./resend";
+import { sendAlertEmail, sendUrgentAlertEmail } from "./resend";
 
 function topPriority(changes: { priority: ChangePriority }[]): ChangePriority {
   if (changes.some((c) => c.priority === "CRITIC")) return "CRITIC";
   if (changes.some((c) => c.priority === "IMPORTANT")) return "IMPORTANT";
   return "INFO";
-}
-
-async function checkTrialExpiry() {
-  const twelveDaysAgo = new Date();
-  twelveDaysAgo.setDate(twelveDaysAgo.getDate() - 12);
-  const thirteenDaysAgo = new Date();
-  thirteenDaysAgo.setDate(thirteenDaysAgo.getDate() - 13);
-
-  const expiring = await prisma.user.findMany({
-    where: { subscriptionStatus: "trial", trialStart: { gte: thirteenDaysAgo, lte: twelveDaysAgo } },
-  });
-  for (const user of expiring) {
-    await sendTrialExpiryReminder(user.email, user.name || undefined);
-  }
-  console.log(`[cron] Trial expiry: notified ${expiring.length} users`);
 }
 
 export async function runDailyMonitoring() {
@@ -30,11 +15,9 @@ export async function runDailyMonitoring() {
 
   if (companies.length === 0) {
     console.log("[cron] No companies.");
-    await checkTrialExpiry();
     return;
   }
 
-  // Batch ANAF request — up to 100 CUIs per HTTP call
   const cuis = [...new Set(companies.map((c) => c.cui))];
   const firmaMap = await fetchFirmeByCodes(cuis);
 
@@ -97,7 +80,6 @@ export async function runDailyMonitoring() {
     }
   }
 
-  await checkTrialExpiry();
   console.log("[cron] ===== Daily monitoring completed =====");
 }
 

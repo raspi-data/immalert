@@ -8,7 +8,6 @@ interface NavUser {
   email: string;
   name?: string | null;
   role: string;
-  subscriptionStatus: string;
 }
 
 export function DashboardNav({ user }: { user: NavUser }) {
@@ -20,20 +19,6 @@ export function DashboardNav({ user }: { user: NavUser }) {
     { href: "/dashboard/settings", label: "Setări", icon: "settings" },
     ...(user.role === "admin" ? [{ href: "/admin", label: "Admin", icon: "admin_panel_settings" }] : []),
   ];
-
-  const statusLabel =
-    user.subscriptionStatus === "trial"
-      ? "Trial gratuit"
-      : user.subscriptionStatus === "active"
-      ? "Activ"
-      : "Expirat";
-
-  const statusClass =
-    user.subscriptionStatus === "active"
-      ? "bg-secondary-container text-on-secondary-container"
-      : user.subscriptionStatus === "trial"
-      ? "bg-surface-container text-primary-container"
-      : "bg-error-container text-on-error-container";
 
   return (
     <header className="bg-white border-b border-surface-variant sticky top-0 z-40">
@@ -60,9 +45,6 @@ export function DashboardNav({ user }: { user: NavUser }) {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusClass}`}>
-            {statusLabel}
-          </span>
           <span className="text-sm text-outline hidden sm:block">{user.email}</span>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}

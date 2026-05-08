@@ -13,7 +13,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
   await resend.emails.send({
     from: FROM,
     to: email,
-    subject: "Bun venit la ImmAlert — Trialul tău de 14 zile a început!",
+    subject: "Bun venit la ImmAlert — Monitorizare firme 100% gratuit!",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
         <div style="background:#1e40af;padding:24px;border-radius:8px 8px 0 0;">
@@ -21,7 +21,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
         </div>
         <div style="background:#f9fafb;padding:32px;border-radius:0 0 8px 8px;">
           <h2 style="color:#111827;">Bun venit${name ? `, ${name}` : ""}!</h2>
-          <p style="color:#374151;">Contul tău a fost creat cu succes. Ai <strong>14 zile gratuit</strong> să monitorizezi orice firmă din România.</p>
+          <p style="color:#374151;">Contul tău a fost creat cu succes. Poți monitoriza orice firmă din România, <strong>complet gratuit</strong>.</p>
           <h3 style="color:#111827;">Ce poți face acum:</h3>
           <ul style="color:#374151;">
             <li>Adaugă firme după CUI</li>
@@ -35,34 +35,6 @@ export async function sendWelcomeEmail(email: string, name?: string) {
             Dacă ai întrebări, răspunde la acest email.<br>
             Echipa ImmAlert
           </p>
-        </div>
-      </div>
-    `,
-  });
-}
-
-export async function sendTrialExpiryReminder(email: string, name?: string) {
-  const resend = getResend();
-  await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "⏰ Trialul tău ImmAlert expiră în 2 zile",
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#dc2626;padding:24px;border-radius:8px 8px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">ImmAlert</h1>
-        </div>
-        <div style="background:#f9fafb;padding:32px;border-radius:0 0 8px 8px;">
-          <h2 style="color:#111827;">Trialul expiră în 2 zile${name ? `, ${name}` : ""}!</h2>
-          <p style="color:#374151;">Nu vei mai primi alerte despre firmele monitorizate dacă nu activezi un abonament.</p>
-          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0;">
-            <p style="margin:0;color:#111827;font-weight:bold;">Planuri disponibile:</p>
-            <p style="color:#374151;">• <strong>99 RON/lună</strong> — plată lunară</p>
-            <p style="color:#374151;">• <strong>79 RON/lună</strong> — plată anuală (economisești 240 RON/an)</p>
-          </div>
-          <a href="${APP_URL}/settings" style="display:inline-block;background:#dc2626;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px;">
-            Activează Abonament →
-          </a>
         </div>
       </div>
     `,

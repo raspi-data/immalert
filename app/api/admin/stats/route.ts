@@ -20,8 +20,6 @@ export async function GET() {
         id: true,
         email: true,
         name: true,
-        subscriptionStatus: true,
-        trialStart: true,
         createdAt: true,
         _count: { select: { companies: true, alerts: true } },
       },

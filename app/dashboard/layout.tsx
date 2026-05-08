@@ -16,7 +16,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     email: session.user?.email ?? "",
     name: session.user?.name ?? null,
     role: (session.user as { role?: string })?.role ?? "user",
-    subscriptionStatus: (session.user as { subscriptionStatus?: string })?.subscriptionStatus ?? "trial",
   };
 
   return (

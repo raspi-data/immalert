@@ -3,20 +3,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
-const STATUS_LABEL: Record<string, string> = {
-  trial: "Trial",
-  active: "Activ",
-  canceled: "Anulat",
-  inactive: "Inactiv",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  trial: "bg-blue-100 text-blue-700",
-  active: "bg-green-100 text-green-700",
-  canceled: "bg-red-100 text-red-700",
-  inactive: "bg-gray-100 text-gray-600",
-};
-
 export default async function AdminPage() {
   const session = await auth();
   if (!session || session.user.role !== "admin") redirect("/dashboard");
@@ -33,8 +19,6 @@ export default async function AdminPage() {
         id: true,
         email: true,
         name: true,
-        subscriptionStatus: true,
-        trialStart: true,
         createdAt: true,
         _count: { select: { companies: true, alerts: true } },
       },
@@ -75,10 +59,8 @@ export default async function AdminPage() {
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Email</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Status</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Firme</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Alerte</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Trial start</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Înregistrat</th>
                 </tr>
               </thead>
@@ -91,16 +73,8 @@ export default async function AdminPage() {
                         {user.name && <p className="text-gray-400 text-xs">{user.name}</p>}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[user.subscriptionStatus] || "bg-gray-100 text-gray-600"}`}>
-                        {STATUS_LABEL[user.subscriptionStatus] || user.subscriptionStatus}
-                      </span>
-                    </td>
                     <td className="px-4 py-3 text-gray-600">{user._count.companies}</td>
                     <td className="px-4 py-3 text-gray-600">{user._count.alerts}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">
-                      {new Date(user.trialStart).toLocaleDateString("ro-RO")}
-                    </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
                       {new Date(user.createdAt).toLocaleDateString("ro-RO")}
                     </td>

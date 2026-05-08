@@ -30,9 +30,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
-          subscriptionStatus: user.subscriptionStatus,
         };
       },
     }),
   ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: string }).role;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: (token.id ?? token.sub) as string | undefined,
+          role: token.role as string | undefined,
+        },
+      };
+    },
+  },
 });
