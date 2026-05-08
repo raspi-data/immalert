@@ -1,39 +1,44 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fetchFirmaByCode } from "@/lib/firmeapi";
 import { z } from "zod";
+import type { NextAuthRequest } from "next-auth";
 
 const addSchema = z.object({
   cui: z.string().min(2).max(10).regex(/^\d+$/, "CUI trebuie să conțină doar cifre"),
 });
 
-async function getUserId(): Promise<string | null> {
-  const session = await auth();
+async function resolveUserId(req: NextAuthRequest): Promise<string | null> {
+  const session = req.auth;
+
+  console.log("=== AUTH DEBUG ===");
+  console.log("session:", JSON.stringify(session));
+  console.log("session.user:", JSON.stringify(session?.user));
+  console.log("session.user.id:", session?.user?.id);
+  console.log("session.user.email:", session?.user?.email);
+
   if (!session?.user) return null;
 
-  let userId = session.user.id;
-  if (userId) return userId;
+  if (session.user.id) return session.user.id;
 
   const email = session.user.email;
   if (!email) return null;
 
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  console.log("Found userId via email:", user?.id);
   return user?.id ?? null;
 }
 
-export async function GET() {
-  const userId = await getUserId();
+export const GET = auth(async function GET(req: NextAuthRequest) {
+  const userId = await resolveUserId(req);
   if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   try {
     const companies = await prisma.company.findMany({
       where: { userId },
       include: {
-        alerts: {
-          where: { citit: false },
-          select: { id: true },
-        },
+        alerts: { where: { citit: false }, select: { id: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -43,10 +48,10 @@ export async function GET() {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
   }
-}
+}) as unknown as () => Promise<Response>;
 
-export async function POST(req: NextRequest) {
-  const userId = await getUserId();
+export const POST = auth(async function POST(req: NextAuthRequest) {
+  const userId = await resolveUserId(req);
   if (!userId) return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
 
   try {
@@ -86,4 +91,4 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: `Eroare internă: ${message}` }, { status: 500 });
   }
-}
+}) as unknown as (req: Request) => Promise<Response>;

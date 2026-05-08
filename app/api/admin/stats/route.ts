@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { NextAuthRequest } from "next-auth";
 
-export async function GET() {
-  const session = await auth();
-  if (!session || session.user.role !== "admin") {
+export const GET = auth(async function GET(req: NextAuthRequest) {
+  const session = req.auth;
+  if (!session || (session.user as { role?: string }).role !== "admin") {
     return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
   }
 
@@ -28,4 +29,4 @@ export async function GET() {
   ]);
 
   return NextResponse.json({ totalUsers, totalCompanies, alertsToday, users });
-}
+}) as unknown as () => Promise<Response>;

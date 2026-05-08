@@ -1,20 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { NextAuthRequest } from "next-auth";
 
-export async function GET() {
-  let session;
-  let sessionError: string | null = null;
+export const GET = auth(async function GET(req: NextAuthRequest) {
+  const session = req.auth;
 
-  try {
-    session = await auth();
-  } catch (err) {
-    sessionError = err instanceof Error ? err.message : String(err);
-  }
-
-  const user = session?.user ?? null;
-  const sessionUserId = (user as { id?: string } | null)?.id ?? null;
-  const sessionUserEmail = user?.email ?? null;
+  const sessionUserId = session?.user?.id ?? null;
+  const sessionUserEmail = session?.user?.email ?? null;
 
   let dbUserId: string | null = null;
   if (sessionUserEmail) {
@@ -26,11 +19,11 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    ok: !sessionError && !!session,
-    sessionError,
+    ok: !!session,
     sessionUserId,
     sessionUserEmail,
     dbUserId,
     resolvedUserId: sessionUserId ?? dbUserId,
+    fullSession: session,
   });
-}
+}) as unknown as () => Promise<Response>;
