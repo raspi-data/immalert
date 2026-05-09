@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   let bilant = null;
   try {
-    bilant = await getBilanturiIstorice(parseInt(company.cui, 10), 5);
+    bilant = await getBilanturiIstorice(parseInt(company.cui, 10));
   } catch {
     // Non-critical
   }

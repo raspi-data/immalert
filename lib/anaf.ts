@@ -255,13 +255,22 @@ export async function getBilant(cui: number, an: number): Promise<BilantAnual | 
   }
 }
 
-export async function getBilanturiIstorice(cui: number, ani = 5): Promise<BilantAnual[]> {
+export async function getBilanturiIstorice(cui: number): Promise<BilantAnual[]> {
   const currentYear = new Date().getFullYear();
   const results: BilantAnual[] = [];
-  for (let an = currentYear - 1; an >= currentYear - ani; an--) {
+  let consecutiveMisses = 0;
+
+  for (let an = currentYear - 1; an >= 1990; an--) {
     const b = await getBilant(cui, an);
-    if (b) results.push(b);
+    if (b) {
+      results.push(b);
+      consecutiveMisses = 0;
+    } else {
+      consecutiveMisses++;
+      if (consecutiveMisses >= 2) break;
+    }
   }
+
   return results;
 }
 

@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     // Fetch bilanturi best-effort (nu blocam raspunsul daca esueaza)
     let bilanturi: BilantAnual[] = [];
     try {
-      bilanturi = await getBilanturiIstorice(parseInt(company.cui, 10), 3);
+      bilanturi = await getBilanturiIstorice(parseInt(company.cui, 10));
     } catch (err) {
       console.error("[quick-check] Bilant fetch failed:", err);
     }
