@@ -1,10 +1,13 @@
 "use client";
 
-import type { FirmaData } from "@/lib/anaf";
+import type { FirmaData, BilantAnual } from "@/lib/anaf";
+
+const fmt = (n: number) => new Intl.NumberFormat("ro-RO").format(n) + " RON";
 
 interface Props {
   company: FirmaData;
   email: string;
+  bilanturi: BilantAnual[];
   onReset: () => void;
 }
 
@@ -52,7 +55,7 @@ function Section({ title, icon }: { title: string; icon: string }) {
   );
 }
 
-export default function CompanyResultTable({ company, email, onReset }: Props) {
+export default function CompanyResultTable({ company, email, bilanturi, onReset }: Props) {
   return (
     <section className="max-w-7xl mx-auto px-6 pb-20">
       <div className="bg-white border border-surface-variant rounded-3xl overflow-hidden shadow-sm">
@@ -146,6 +149,49 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
                 <Row icon="event" label="Înregistrat din" value={company.e_factura_data_inregistrare} />
               )}
 
+              <Section title="Date financiare" icon="query_stats" />
+              {bilanturi.length === 0 ? (
+                <Row icon="info" label="Date financiare" value="Nu există date disponibile" />
+              ) : (
+                bilanturi.map((b) => (
+                  <>
+                    <tr key={`${b.an}-header`} className="border-b border-surface-variant bg-surface-container/30">
+                      <td colSpan={2} className="px-5 py-2 text-xs font-bold text-on-surface-variant">
+                        Exercițiu financiar {b.an}
+                      </td>
+                    </tr>
+                    <Row
+                      key={`${b.an}-ca`}
+                      icon="trending_up"
+                      label={`${b.an} · Cifră afaceri netă`}
+                      value={fmt(b.cifra_afaceri_neta)}
+                    />
+                    <Row
+                      key={`${b.an}-pn`}
+                      icon="account_balance"
+                      label={`${b.an} · Profit net`}
+                      value={
+                        <span className={b.profit_net >= 0 ? "text-green-700" : "text-red-700"}>
+                          {fmt(b.profit_net)}
+                        </span>
+                      }
+                    />
+                    <Row
+                      key={`${b.an}-dat`}
+                      icon="credit_card"
+                      label={`${b.an} · Datorii totale`}
+                      value={fmt(b.datorii)}
+                    />
+                    <Row
+                      key={`${b.an}-sal`}
+                      icon="group"
+                      label={`${b.an} · Număr salariați`}
+                      value={String(b.numar_salariati)}
+                    />
+                  </>
+                ))
+              )}
+
             </tbody>
           </table>
         </div>
@@ -154,7 +200,7 @@ export default function CompanyResultTable({ company, email, onReset }: Props) {
         <div className="px-6 py-3 border-t border-surface-variant bg-surface-container/20">
           <p className="text-xs text-outline flex items-center gap-1.5">
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
-            Date oficiale din ANAF — Agenția Națională de Administrare Fiscală. Sursa: ANAF v9/tva
+            Date oficiale din ANAF (fiscal) și Ministerul Finanțelor (bilanț)
           </p>
         </div>
 

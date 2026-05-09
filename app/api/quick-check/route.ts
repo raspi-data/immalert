@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchFirmaByCode } from "@/lib/firmeapi";
+import { fetchFirmaByCode, getBilanturiIstorice, type BilantAnual } from "@/lib/anaf";
 import { sendQuickReportEmail } from "@/lib/resend";
 
 export async function POST(req: NextRequest) {
@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Firma cu acest CUI nu a fost gasita in baza de date." }, { status: 404 });
     }
 
+    // Fetch bilanturi best-effort (nu blocam raspunsul daca esueaza)
+    let bilanturi: BilantAnual[] = [];
+    try {
+      bilanturi = await getBilanturiIstorice(parseInt(company.cui, 10), 3);
+    } catch (err) {
+      console.error("[quick-check] Bilant fetch failed:", err);
+    }
+
     // Send email best-effort
     try {
       await sendQuickReportEmail(emailTrimmed, company);
@@ -47,7 +55,7 @@ export async function POST(req: NextRequest) {
       console.error("[quick-check] Email send failed:", err);
     }
 
-    return NextResponse.json({ success: true, company });
+    return NextResponse.json({ success: true, company, bilanturi });
   } catch (err) {
     console.error("[quick-check] Unexpected error:", err);
     return NextResponse.json({ error: "Eroare interna. Incearca din nou." }, { status: 500 });

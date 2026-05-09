@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { FirmaData } from "@/lib/firmeapi";
+import type { FirmaData, BilantAnual } from "@/lib/anaf";
 
 type State = "idle" | "loading" | "success" | "error";
 
 interface Props {
-  onResult?: (company: FirmaData, email: string) => void;
+  onResult?: (company: FirmaData, email: string, bilanturi: BilantAnual[]) => void;
   onReset?: () => void;
 }
 
@@ -38,7 +38,7 @@ export default function HeroCheckForm({ onResult, onReset }: Props) {
 
       setState("success");
       if (onResult && data.company) {
-        onResult(data.company, email.trim());
+        onResult(data.company, email.trim(), data.bilanturi ?? []);
       }
     } catch {
       setState("error");
