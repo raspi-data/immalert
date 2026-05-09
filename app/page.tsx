@@ -108,8 +108,8 @@ export default function LandingPage() {
           </div>
 
           {/* Right — quick check form */}
-          <div className="relative hidden lg:block">
-            <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(26,188,156,0.1)" }} />
+          <div className="relative mt-8 lg:mt-0">
+            <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none hidden lg:block" style={{ background: "rgba(26,188,156,0.1)" }} />
             <div className="relative z-10">
               <HeroCheckForm onResult={handleResult} onReset={handleReset} />
             </div>
