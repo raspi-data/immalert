@@ -164,30 +164,20 @@ export default function CompanyPage() {
                   <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Exercițiu financiar {b.an}</p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3 pl-1">
-                  {b.cifra_afaceri_neta > 0 && (
-                    <DataRow label="Cifră afaceri netă" value={formatRON(b.cifra_afaceri_neta)} />
-                  )}
-                  {b.profit_net !== 0 && (
-                    <DataRow label="Profit net" value={formatRON(b.profit_net)} colored={b.profit_net >= 0} />
-                  )}
-                  {b.pierdere_neta > 0 && (
-                    <DataRow label="Pierdere netă" value={formatRON(b.pierdere_neta)} colored={false} />
-                  )}
-                  {b.datorii > 0 && (
-                    <DataRow label="Datorii totale" value={formatRON(b.datorii)} />
-                  )}
-                  {b.capitaluri_total > 0 && (
-                    <DataRow label="Capitaluri totale" value={formatRON(b.capitaluri_total)} />
-                  )}
-                  {b.active_circulante > 0 && (
-                    <DataRow label="Active circulante" value={formatRON(b.active_circulante)} />
-                  )}
-                  {b.active_imobilizate > 0 && (
-                    <DataRow label="Active imobilizate" value={formatRON(b.active_imobilizate)} />
-                  )}
-                  {b.numar_salariati > 0 && (
-                    <DataRow label="Număr salariați" value={String(b.numar_salariati)} />
-                  )}
+                  {b.cifra_afaceri_neta > 0 && <DataRow label="Cifră afaceri netă" value={formatRON(b.cifra_afaceri_neta)} />}
+                  {b.venituri_totale > 0 && <DataRow label="Total venituri" value={formatRON(b.venituri_totale)} />}
+                  {b.cheltuieli_totale > 0 && <DataRow label="Total cheltuieli" value={formatRON(b.cheltuieli_totale)} />}
+                  {b.profit_net !== 0 && <DataRow label="Profit net" value={formatRON(b.profit_net)} colored={b.profit_net > 0} />}
+                  {b.pierdere_neta > 0 && <DataRow label="Pierdere netă" value={formatRON(b.pierdere_neta)} colored={false} />}
+                  {b.active_imobilizate > 0 && <DataRow label="Active imobilizate" value={formatRON(b.active_imobilizate)} />}
+                  {b.active_circulante > 0 && <DataRow label="Active circulante" value={formatRON(b.active_circulante)} />}
+                  {b.stocuri > 0 && <DataRow label="Stocuri" value={formatRON(b.stocuri)} />}
+                  {b.creante > 0 && <DataRow label="Creanțe" value={formatRON(b.creante)} />}
+                  {b.casa_si_conturi_banci > 0 && <DataRow label="Casa și conturi bănci" value={formatRON(b.casa_si_conturi_banci)} />}
+                  {b.capitaluri_total > 0 && <DataRow label="Capitaluri proprii" value={formatRON(b.capitaluri_total)} />}
+                  {b.datorii > 0 && <DataRow label="Total datorii" value={formatRON(b.datorii)} />}
+                  {b.capital_subscris_varsat > 0 && <DataRow label="Capital subscris vărsat" value={formatRON(b.capital_subscris_varsat)} />}
+                  {b.numar_salariati > 0 && <DataRow label="Număr salariați" value={String(b.numar_salariati)} />}
                 </div>
                 {bilanturi.indexOf(b) < bilanturi.length - 1 && (
                   <div className="border-t border-surface-container mt-4" />
