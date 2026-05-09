@@ -160,34 +160,28 @@ export default function CompanyResultTable({ company, email, bilanturi, onReset 
                         Exercițiu financiar {b.an}
                       </td>
                     </tr>
-                    <Row
-                      key={`${b.an}-ca`}
-                      icon="trending_up"
-                      label={`${b.an} · Cifră afaceri netă`}
-                      value={fmt(b.cifra_afaceri_neta)}
-                    />
-                    <Row
-                      key={`${b.an}-pn`}
-                      icon="account_balance"
-                      label={`${b.an} · Profit net`}
-                      value={
-                        <span className={b.profit_net >= 0 ? "text-green-700" : "text-red-700"}>
-                          {fmt(b.profit_net)}
-                        </span>
-                      }
-                    />
-                    <Row
-                      key={`${b.an}-dat`}
-                      icon="credit_card"
-                      label={`${b.an} · Datorii totale`}
-                      value={fmt(b.datorii)}
-                    />
-                    <Row
-                      key={`${b.an}-sal`}
-                      icon="group"
-                      label={`${b.an} · Număr salariați`}
-                      value={String(b.numar_salariati)}
-                    />
+                    {b.cifra_afaceri_neta > 0 && <Row key={`${b.an}-ca`} icon="trending_up" label="Cifră afaceri netă" value={fmt(b.cifra_afaceri_neta)} />}
+                    {b.venituri_totale > 0 && <Row key={`${b.an}-vt`} icon="payments" label="Total venituri" value={fmt(b.venituri_totale)} />}
+                    {b.cheltuieli_totale > 0 && <Row key={`${b.an}-ct`} icon="receipt" label="Total cheltuieli" value={fmt(b.cheltuieli_totale)} />}
+                    {b.profit_net !== 0 && (
+                      <Row key={`${b.an}-pn`} icon="account_balance" label="Profit net"
+                        value={<span className={b.profit_net > 0 ? "text-green-700" : "text-red-700"}>{fmt(b.profit_net)}</span>}
+                      />
+                    )}
+                    {b.pierdere_neta > 0 && (
+                      <Row key={`${b.an}-prd`} icon="trending_down" label="Pierdere netă"
+                        value={<span className="text-red-700">{fmt(b.pierdere_neta)}</span>}
+                      />
+                    )}
+                    {b.active_imobilizate > 0 && <Row key={`${b.an}-ai`} icon="apartment" label="Active imobilizate" value={fmt(b.active_imobilizate)} />}
+                    {b.active_circulante > 0 && <Row key={`${b.an}-ac`} icon="inventory_2" label="Active circulante" value={fmt(b.active_circulante)} />}
+                    {b.stocuri > 0 && <Row key={`${b.an}-st`} icon="inventory" label="Stocuri" value={fmt(b.stocuri)} />}
+                    {b.creante > 0 && <Row key={`${b.an}-cr`} icon="handshake" label="Creanțe" value={fmt(b.creante)} />}
+                    {b.casa_si_conturi_banci > 0 && <Row key={`${b.an}-cb`} icon="savings" label="Casa și conturi bănci" value={fmt(b.casa_si_conturi_banci)} />}
+                    {b.capitaluri_total > 0 && <Row key={`${b.an}-cap`} icon="pie_chart" label="Capitaluri proprii" value={fmt(b.capitaluri_total)} />}
+                    {b.datorii > 0 && <Row key={`${b.an}-dat`} icon="credit_card" label="Total datorii" value={fmt(b.datorii)} />}
+                    {b.capital_subscris_varsat > 0 && <Row key={`${b.an}-csv`} icon="business_center" label="Capital subscris vărsat" value={fmt(b.capital_subscris_varsat)} />}
+                    {b.numar_salariati > 0 && <Row key={`${b.an}-sal`} icon="group" label="Număr salariați" value={String(b.numar_salariati)} />}
                   </>
                 ))
               )}
