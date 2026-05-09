@@ -103,7 +103,7 @@ export default function CompanyPage() {
   }
 
   const f = company.dateAnaf;
-  const latestBilant = company.bilant?.sort((a, b) => b.an - a.an)[0];
+  const bilanturi = [...(company.bilant ?? [])].sort((a, b) => b.an - a.an);
 
   return (
     <div className="space-y-5">
@@ -151,24 +151,52 @@ export default function CompanyPage() {
       )}
 
       {/* Bilanț financiar */}
-      {latestBilant && (
-        <div className="bg-white rounded-2xl border border-surface-variant p-6">
-          <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">
-            Bilanț financiar {latestBilant.an}
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {latestBilant.cifra_afaceri_neta > 0 && <DataRow label="Cifră de afaceri" value={formatRON(latestBilant.cifra_afaceri_neta)} />}
-            {latestBilant.profit_net !== 0 && (
-              <DataRow label="Profit net" value={formatRON(latestBilant.profit_net)} colored={latestBilant.profit_net >= 0} />
-            )}
-            {latestBilant.pierdere_neta > 0 && <DataRow label="Pierdere netă" value={formatRON(latestBilant.pierdere_neta)} colored={false} />}
-            {latestBilant.datorii > 0 && <DataRow label="Datorii totale" value={formatRON(latestBilant.datorii)} />}
-            {latestBilant.capitaluri_total > 0 && <DataRow label="Capitaluri totale" value={formatRON(latestBilant.capitaluri_total)} />}
-            {latestBilant.active_circulante > 0 && <DataRow label="Active circulante" value={formatRON(latestBilant.active_circulante)} />}
-            {latestBilant.numar_salariati > 0 && <DataRow label="Număr salariați" value={String(latestBilant.numar_salariati)} />}
+      <div className="bg-white rounded-2xl border border-surface-variant p-6">
+        <h2 className="font-display font-semibold text-on-surface mb-5 text-sm">Date financiare (Ministerul Finanțelor)</h2>
+        {bilanturi.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">Nu există date financiare disponibile pentru această firmă.</p>
+        ) : (
+          <div className="space-y-6">
+            {bilanturi.map((b) => (
+              <div key={b.an}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 16 }}>query_stats</span>
+                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Exercițiu financiar {b.an}</p>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3 pl-1">
+                  {b.cifra_afaceri_neta > 0 && (
+                    <DataRow label="Cifră afaceri netă" value={formatRON(b.cifra_afaceri_neta)} />
+                  )}
+                  {b.profit_net !== 0 && (
+                    <DataRow label="Profit net" value={formatRON(b.profit_net)} colored={b.profit_net >= 0} />
+                  )}
+                  {b.pierdere_neta > 0 && (
+                    <DataRow label="Pierdere netă" value={formatRON(b.pierdere_neta)} colored={false} />
+                  )}
+                  {b.datorii > 0 && (
+                    <DataRow label="Datorii totale" value={formatRON(b.datorii)} />
+                  )}
+                  {b.capitaluri_total > 0 && (
+                    <DataRow label="Capitaluri totale" value={formatRON(b.capitaluri_total)} />
+                  )}
+                  {b.active_circulante > 0 && (
+                    <DataRow label="Active circulante" value={formatRON(b.active_circulante)} />
+                  )}
+                  {b.active_imobilizate > 0 && (
+                    <DataRow label="Active imobilizate" value={formatRON(b.active_imobilizate)} />
+                  )}
+                  {b.numar_salariati > 0 && (
+                    <DataRow label="Număr salariați" value={String(b.numar_salariati)} />
+                  )}
+                </div>
+                {bilanturi.indexOf(b) < bilanturi.length - 1 && (
+                  <div className="border-t border-surface-container mt-4" />
+                )}
+              </div>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Alert history */}
       <div className="bg-white rounded-2xl border border-surface-variant p-6">
