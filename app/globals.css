@@ -20,3 +20,10 @@ body {
   vertical-align: middle;
   line-height: 1;
 }
+
+/* Input focus ring */
+.input-emerald:focus {
+  outline: none;
+  border-color: #2c6956;
+  box-shadow: 0 0 0 3px rgba(44, 105, 86, 0.15);
+}
